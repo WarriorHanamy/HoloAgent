@@ -1,0 +1,183 @@
+[
+  {
+    "category": "Explicit Target (RF)",
+    "query": "Can you find me a sofa in the office",
+    "model": "gemini-4-neon-high",
+    "room_query": "office",
+    "object_query": "sofa",
+    "top_object_id": "0_0_200",
+    "top_object_name": "couch",
+    "top_room_id": "0_0",
+    "top_room_name": "Office",
+    "top_object_center": [
+      -0.43573395644917207,
+      0.8920221048242906,
+      -0.9690808355808258
+    ],
+    "best_view_id": "0_0_40",
+    "goal_image_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/sh_3f/images/1752837575812.8513.png",
+    "vlm_check_passed": true,
+    "llm_parse_time": 8.202019691467285,
+    "fast_match_time": 0.017537832260131836,
+    "vlm_check_time": 5.9356160163879395,
+    "vlm_rethink_time": 0.0,
+    "re_match_time": 0.0,
+    "total_time": 14.164883375167847,
+    "raw_qtc": {
+      "room_query": "office",
+      "object_query": "sofa",
+      "negative_prompt": [
+        "background"
+      ],
+      "room_retrieval_by_clip": 0.010832548141479492,
+      "FastMatching_time": 0.017537832260131836,
+      "top1_image_path_online_object_best_view": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/sh_3f/images/1752837575812.8513.png",
+      "Object_in_goal_view_check_time": "5.9356 秒",
+      "Object_in_goal_view_check_res": true,
+      "total_query_time": "5.9532 秒"
+    }
+  },
+  {
+    "category": "Explicit Target (RF)",
+    "query": "Find me a laptop in the office",
+    "model": "gemini-4-neon-high",
+    "room_query": "office",
+    "object_query": "laptop",
+    "top_object_id": "0_0_5",
+    "top_object_name": "shelf",
+    "top_room_id": "0_0",
+    "top_room_name": "Office",
+    "top_object_center": [
+      -4.261562080177913,
+      3.8587084345325553,
+      -0.33947568246211623
+    ],
+    "best_view_id": "None",
+    "goal_image_path": null,
+    "vlm_check_passed": null,
+    "llm_parse_time": 4.743215799331665,
+    "fast_match_time": 0.01829814910888672,
+    "vlm_check_time": 0.0,
+    "vlm_rethink_time": 0.0,
+    "re_match_time": 0.0,
+    "total_time": 4.770998239517212,
+    "raw_qtc": {
+      "room_query": "office",
+      "object_query": "laptop",
+      "negative_prompt": [
+        "background"
+      ],
+      "room_retrieval_by_clip": 0.011568546295166016,
+      "FastMatching_time": 0.01829814910888672,
+      "total_query_time": "0.0183 秒"
+    }
+  },
+  {
+    "category": "Implicit Reasoning (RR)",
+    "query": "I am thirsty, can you find me something to drink in the office",
+    "model": "gemini-4-neon-high",
+    "room_query": "office",
+    "object_query": "something to drink",
+    "top_object_id": "0_0_134",
+    "top_object_name": "bottle",
+    "top_room_id": "0_0",
+    "top_room_name": "Office",
+    "top_object_center": [
+      -4.064768477241592,
+      -6.93381395906505,
+      -0.5290033773030385
+    ],
+    "best_view_id": "None",
+    "goal_image_path": null,
+    "vlm_check_passed": null,
+    "llm_parse_time": 9.210806131362915,
+    "fast_match_time": 0.01784229278564453,
+    "vlm_check_time": 0.0,
+    "vlm_rethink_time": 0.0,
+    "re_match_time": 0.0,
+    "total_time": 9.237073183059692,
+    "raw_qtc": {
+      "room_query": "office",
+      "object_query": "something to drink",
+      "negative_prompt": [
+        "background"
+      ],
+      "room_retrieval_by_clip": 0.010968446731567383,
+      "FastMatching_time": 0.01784229278564453,
+      "total_query_time": "0.0178 秒"
+    }
+  },
+  {
+    "category": "Spatial Target (ST)",
+    "query": "Take me to the coffee machine in the office pantry",
+    "model": "gemini-4-neon-high",
+    "room_query": "office pantry",
+    "object_query": "coffee machine",
+    "top_object_id": "0_1_93",
+    "top_object_name": "coffee maker",
+    "top_room_id": "0_1",
+    "top_room_name": "Office",
+    "top_object_center": [
+      -11.061655495383523,
+      -10.495436928488992,
+      -0.5875273549195492
+    ],
+    "best_view_id": "None",
+    "goal_image_path": null,
+    "vlm_check_passed": null,
+    "llm_parse_time": 6.390027761459351,
+    "fast_match_time": 0.017729520797729492,
+    "vlm_check_time": 0.0,
+    "vlm_rethink_time": 0.0,
+    "re_match_time": 0.0,
+    "total_time": 6.416321039199829,
+    "raw_qtc": {
+      "room_query": "office pantry",
+      "object_query": "coffee machine",
+      "negative_prompt": [
+        "background"
+      ],
+      "room_retrieval_by_clip": 0.01085805892944336,
+      "FastMatching_time": 0.017729520797729492,
+      "total_query_time": "0.0177 秒"
+    }
+  },
+  {
+    "category": "Small / Indoor Object (SO)",
+    "query": "Find me a trash can in the office",
+    "model": "gemini-4-neon-high",
+    "room_query": "office",
+    "object_query": "trash can",
+    "top_object_id": "0_0_34",
+    "top_object_name": "trash can",
+    "top_room_id": "0_0",
+    "top_room_name": "Office",
+    "top_object_center": [
+      -8.418563933599563,
+      2.08189552738553,
+      -1.0932075764451707
+    ],
+    "best_view_id": "0_0_0",
+    "goal_image_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/sh_3f/images/1752837414469.0149.png",
+    "vlm_check_passed": true,
+    "llm_parse_time": 4.889387130737305,
+    "fast_match_time": 0.017734289169311523,
+    "vlm_check_time": 15.25791621208191,
+    "vlm_rethink_time": 0.0,
+    "re_match_time": 0.0,
+    "total_time": 20.173354148864746,
+    "raw_qtc": {
+      "room_query": "office",
+      "object_query": "trash can",
+      "negative_prompt": [
+        "background"
+      ],
+      "room_retrieval_by_clip": 0.011095523834228516,
+      "FastMatching_time": 0.017734289169311523,
+      "top1_image_path_online_object_best_view": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/sh_3f/images/1752837414469.0149.png",
+      "Object_in_goal_view_check_time": "15.2579 秒",
+      "Object_in_goal_view_check_res": true,
+      "total_query_time": "15.2757 秒"
+    }
+  }
+]

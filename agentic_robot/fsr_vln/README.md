@@ -207,3 +207,19 @@ FSR-VLN's LLM instruction parsing and VLM slow-reasoning verification natively r
 ```
 
 The visualization stage reads the generated graph files from the mapping output directory and renders the scene graph for inspection.
+
+## 🎬 Reproduction Results (`sh_3f`, Single RTX 4070 Ti SUPER)
+
+Zero-shot offline reproduction on Unitree-G1 `icra_sh3f` (844 RGB-D frames) using `uv` (Python 3.10, PyTorch 2.5.0+cu121) and native Antigravity ACP (`gemini-4-neon-high` / `gemini-4-neon-xhigh`):
+
+- **Demo Video (1280×720 @ 30fps H.264)**: [`reproduction_results/sh_3f/FSR-VLN_sh3f_demo.mp4`](reproduction_results/sh_3f/FSR-VLN_sh3f_demo.mp4)
+- **Logs & JSON Outputs**:
+  - Mapping runtime: [`mapping_runtime.log`](reproduction_results/sh_3f/mapping_runtime.log) (`1 floor / 3 rooms / 107 views / 374 objects`, HMSG build `246.75s`)
+  - Native Antigravity `gemini-4-neon-high` Slow Reasoning results: [`demo_queries_neon_high.json`](reproduction_results/sh_3f/demo_queries_neon_high.json)
+  - Full 23-query Fast Matching results: [`fast_match_23queries_results.json`](reproduction_results/sh_3f/fast_match_23queries_results.json)
+
+| 3D RGB Reconstruction | 4-Layer HMSG Hierarchy |
+|:---:|:---:|
+| ![](reproduction_results/sh_3f/previews/01_rgb_3d_map.png) | ![](reproduction_results/sh_3f/previews/02_hmsg_4layer.png) |
+| **Explicit Target (VLM Verified: 0.95)** | **Implicit Reasoning ("I am thirsty...")** |
+| ![](reproduction_results/sh_3f/previews/03_query_sofa_verified.png) | ![](reproduction_results/sh_3f/previews/04_query_drink_implicit.png) |

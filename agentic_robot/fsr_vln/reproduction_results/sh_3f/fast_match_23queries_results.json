@@ -1,0 +1,1022 @@
+{
+  "average_total_time": 0.0,
+  "average_objectIncheck_time": 0.0,
+  "average_vlm_rethinking_time": 0.0,
+  "average_re_matching_time": 0.0,
+  "average_fastmatching_time": 0.0,
+  "average_llm_parse_time": 0.00021483587182086447,
+  "results": [
+    {
+      "query": "Can you find me a chair in the office",
+      "time_seconds": 0.030796527862548828,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_196"
+        },
+        {
+          "object_id": "0_0_77"
+        },
+        {
+          "object_id": "0_0_106"
+        },
+        {
+          "object_id": "0_1_133"
+        },
+        {
+          "object_id": "0_1_147"
+        }
+      ]
+    },
+    {
+      "query": "Can you find me a sofa in the office",
+      "time_seconds": 0.02856731414794922,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_200"
+        },
+        {
+          "object_id": "0_0_77"
+        },
+        {
+          "object_id": "0_0_25"
+        },
+        {
+          "object_id": "0_1_61"
+        },
+        {
+          "object_id": "0_0_144"
+        }
+      ]
+    },
+    {
+      "query": "Can you find me a desk in the office",
+      "time_seconds": 0.02753901481628418,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_2"
+        },
+        {
+          "object_id": "0_0_4"
+        },
+        {
+          "object_id": "0_1_165"
+        },
+        {
+          "object_id": "0_1_72"
+        },
+        {
+          "object_id": "0_1_146"
+        }
+      ]
+    },
+    {
+      "query": "Can you fine me a computer in the office",
+      "time_seconds": 0.026333093643188477,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_167"
+        },
+        {
+          "object_id": "0_0_5"
+        },
+        {
+          "object_id": "0_1_155"
+        },
+        {
+          "object_id": "0_1_153"
+        },
+        {
+          "object_id": "0_1_24"
+        }
+      ]
+    },
+    {
+      "query": "Find me a banana in the office",
+      "time_seconds": 0.028232097625732422,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_98"
+        },
+        {
+          "object_id": "0_0_95"
+        },
+        {
+          "object_id": "0_0_194"
+        },
+        {
+          "object_id": "0_0_87"
+        },
+        {
+          "object_id": "0_1_61"
+        }
+      ]
+    },
+    {
+      "query": "I want to eat some fruit.",
+      "time_seconds": 0.02012467384338379,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_194"
+        },
+        {
+          "object_id": "0_0_112"
+        },
+        {
+          "object_id": "0_0_120"
+        },
+        {
+          "object_id": "0_0_187"
+        },
+        {
+          "object_id": "0_0_113"
+        }
+      ]
+    },
+    {
+      "query": "Find me a cup in the office",
+      "time_seconds": 0.030013084411621094,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_1_18"
+        },
+        {
+          "object_id": "0_1_15"
+        },
+        {
+          "object_id": "0_0_42"
+        },
+        {
+          "object_id": "0_1_142"
+        },
+        {
+          "object_id": "0_1_8"
+        }
+      ]
+    },
+    {
+      "query": "Find me a white table in the office",
+      "time_seconds": 0.02643871307373047,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_1_146"
+        },
+        {
+          "object_id": "0_0_2"
+        },
+        {
+          "object_id": "0_0_123"
+        },
+        {
+          "object_id": "0_1_72"
+        },
+        {
+          "object_id": "0_0_196"
+        }
+      ]
+    },
+    {
+      "query": "Find me a white chair",
+      "time_seconds": 0.02194356918334961,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_196"
+        },
+        {
+          "object_id": "0_0_77"
+        },
+        {
+          "object_id": "0_1_133"
+        },
+        {
+          "object_id": "0_0_186"
+        },
+        {
+          "object_id": "0_0_159"
+        }
+      ]
+    },
+    {
+      "query": "Find me a mechine arm robot in on the desk in the office",
+      "time_seconds": 0.029041767120361328,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_167"
+        },
+        {
+          "object_id": "0_0_150"
+        },
+        {
+          "object_id": "0_0_2"
+        },
+        {
+          "object_id": "0_0_149"
+        },
+        {
+          "object_id": "0_0_190"
+        }
+      ]
+    },
+    {
+      "query": "Find me a trash can in the office",
+      "time_seconds": 0.02824997901916504,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_34"
+        },
+        {
+          "object_id": "0_0_41"
+        },
+        {
+          "object_id": "0_1_8"
+        },
+        {
+          "object_id": "0_1_12"
+        },
+        {
+          "object_id": "0_0_42"
+        }
+      ]
+    },
+    {
+      "query": "Find me a laptop in the office",
+      "time_seconds": 0.02617335319519043,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_5"
+        },
+        {
+          "object_id": "0_1_24"
+        },
+        {
+          "object_id": "0_1_131"
+        },
+        {
+          "object_id": "0_1_129"
+        },
+        {
+          "object_id": "0_0_149"
+        }
+      ]
+    },
+    {
+      "query": "Find me a book in the office",
+      "time_seconds": 0.026459693908691406,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_23"
+        },
+        {
+          "object_id": "0_0_25"
+        },
+        {
+          "object_id": "0_0_28"
+        },
+        {
+          "object_id": "0_0_18"
+        },
+        {
+          "object_id": "0_1_97"
+        }
+      ]
+    },
+    {
+      "query": "I am thirsty, can you find me something to drink in the office",
+      "time_seconds": 0.026816129684448242,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_132"
+        },
+        {
+          "object_id": "0_0_134"
+        },
+        {
+          "object_id": "0_0_121"
+        },
+        {
+          "object_id": "0_0_147"
+        },
+        {
+          "object_id": "0_0_131"
+        }
+      ]
+    },
+    {
+      "query": "Find me Pepsi-Cola in the office",
+      "time_seconds": 0.028784751892089844,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_131"
+        },
+        {
+          "object_id": "0_0_134"
+        },
+        {
+          "object_id": "0_0_147"
+        },
+        {
+          "object_id": "0_0_123"
+        },
+        {
+          "object_id": "0_0_152"
+        }
+      ]
+    },
+    {
+      "query": "Find me Coca-Cola in the office",
+      "time_seconds": 0.026540040969848633,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_147"
+        },
+        {
+          "object_id": "0_0_114"
+        },
+        {
+          "object_id": "0_0_141"
+        },
+        {
+          "object_id": "0_0_152"
+        },
+        {
+          "object_id": "0_0_134"
+        }
+      ]
+    },
+    {
+      "query": "Find me a can the office",
+      "time_seconds": 0.020659208297729492,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_1_30"
+        },
+        {
+          "object_id": "0_0_106"
+        },
+        {
+          "object_id": "0_0_149"
+        },
+        {
+          "object_id": "0_0_102"
+        },
+        {
+          "object_id": "0_1_118"
+        }
+      ]
+    },
+    {
+      "query": "Take me to the coffee machine in the office pantry",
+      "time_seconds": 0.027728557586669922,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_1_93"
+        },
+        {
+          "object_id": "0_1_88"
+        },
+        {
+          "object_id": "0_1_90"
+        },
+        {
+          "object_id": "0_1_142"
+        },
+        {
+          "object_id": "0_1_97"
+        }
+      ]
+    },
+    {
+      "query": "Take me to the cabinet in the office pantry",
+      "time_seconds": 0.0324857234954834,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_4"
+        },
+        {
+          "object_id": "0_1_30"
+        },
+        {
+          "object_id": "0_1_165"
+        },
+        {
+          "object_id": "0_1_37"
+        },
+        {
+          "object_id": "0_1_17"
+        }
+      ]
+    },
+    {
+      "query": "Take me to the table in the office pantry",
+      "time_seconds": 0.02691817283630371,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_1_72"
+        },
+        {
+          "object_id": "0_0_123"
+        },
+        {
+          "object_id": "0_1_146"
+        },
+        {
+          "object_id": "0_0_2"
+        },
+        {
+          "object_id": "0_1_141"
+        }
+      ]
+    },
+    {
+      "query": "Take me to the chair in the office pantry",
+      "time_seconds": 0.02682209014892578,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_0_196"
+        },
+        {
+          "object_id": "0_0_77"
+        },
+        {
+          "object_id": "0_0_106"
+        },
+        {
+          "object_id": "0_1_133"
+        },
+        {
+          "object_id": "0_1_147"
+        }
+      ]
+    },
+    {
+      "query": "Fine me some animal toy in the office pantry",
+      "time_seconds": 0.028133392333984375,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_1_51"
+        },
+        {
+          "object_id": "0_1_58"
+        },
+        {
+          "object_id": "0_1_54"
+        },
+        {
+          "object_id": "0_1_84"
+        },
+        {
+          "object_id": "0_0_74"
+        }
+      ]
+    },
+    {
+      "query": "Take me to the kettle in the office pantry",
+      "time_seconds": 0.0280001163482666,
+      "floor_id": "0",
+      "rooms": [
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_1",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        },
+        {
+          "room_id": "0_0",
+          "name": "Office"
+        }
+      ],
+      "objects": [
+        {
+          "object_id": "0_1_142"
+        },
+        {
+          "object_id": "0_1_58"
+        },
+        {
+          "object_id": "0_0_149"
+        },
+        {
+          "object_id": "0_0_112"
+        },
+        {
+          "object_id": "0_0_75"
+        }
+      ]
+    }
+  ]
+}
