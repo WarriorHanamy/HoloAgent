@@ -2,47 +2,17 @@ from functools import lru_cache
 import os
 import re
 import time
-from typing import Dict, List, Tuple, Union
-import openai
-from openai import AzureOpenAI, OpenAI
+from typing import Any, Dict, List, Tuple, Union
+
+from memory.hmsg.utils.antigravity_client import (
+    create_llm_client,
+    resolve_llm_backend,
+)
 
 
-def _create_gpt_client() -> Tuple[Union[AzureOpenAI, OpenAI], str]:
-    azure_api_key = os.getenv("AZURE_OPENAI_API_KEY", "")
-    azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT", "")
-    azure_deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT", "")
-
-    if azure_api_key or azure_endpoint or azure_deployment:
-        if not azure_api_key:
-            raise RuntimeError(
-                "未配置 Azure API Key，请设置 AZURE_OPENAI_API_KEY"
-            )
-        if not azure_endpoint:
-            raise RuntimeError(
-                "未配置 Azure Endpoint，请设置 AZURE_OPENAI_ENDPOINT"
-            )
-        if not azure_deployment:
-            raise RuntimeError(
-                "未配置 Azure Deployment，请设置 AZURE_OPENAI_DEPLOYMENT"
-            )
-
-        client = AzureOpenAI(
-            azure_endpoint=azure_endpoint,
-            api_key=azure_api_key,
-            api_version="2024-02-15-preview",
-        )
-        return client, azure_deployment
-
-    openai_api_key = os.getenv("OPENAI_API_KEY", "")
-    if not openai_api_key:
-        raise RuntimeError(
-            "未配置 OpenAI API Key，请设置 OPENAI_API_KEY；"
-            "或配置 Azure 所需环境变量：AZURE_OPENAI_API_KEY、"
-            "AZURE_OPENAI_ENDPOINT、AZURE_OPENAI_DEPLOYMENT"
-        )
-
-    client = OpenAI(api_key=openai_api_key)
-    return client, "gpt-4o"
+def _create_gpt_client(cfg: Any = None) -> Tuple[Any, str]:
+    """Return the configured LLM/VLM client (defaults to native Antigravity ACP)."""
+    return create_llm_client(cfg)
 
 
 def infer_floor_id_from_query(floor_ids: List[int], query: str) -> int:
@@ -392,13 +362,47 @@ def parse_hier_query_use_prompt_insentence_parse(
     return (floor, room, obj)
 
 
+def _parse_hier_query_offline(instruction: str) -> Tuple[str, str, str]:
+    """Lightweight regex fallback parser when running fast_match without an LLM API key."""
+    text = instruction.strip().rstrip(".?! ")
+    floor = "floor 0"
+    room = "unknown"
+
+    room_match = re.search(r"\b(?:in|at)\s+(?:the\s+)?(office pantry|pantry|office|kitchen|meeting room|corridor|hall|lobby|bathroom|bedroom|living room)\b", text, flags=re.IGNORECASE)
+    if room_match:
+        room = room_match.group(1).strip()
+        obj_part = text[:room_match.start()].strip()
+    else:
+        obj_part = text
+
+    obj_part = re.sub(
+        r"^(?:can you\s+)?(?:please\s+)?(?:find|fine|take|show|bring|get)\s+(?:me\s+)?(?:to\s+)?(?:a|an|the|some)?\s*",
+        "",
+        obj_part,
+        flags=re.IGNORECASE,
+    ).strip()
+    obj = obj_part if obj_part else text
+    print(f"[Offline Query Parser] floor={floor}, room={room}, object={obj}")
+    return floor, room, obj
+
+
 def parse_hier_query_use_prompt_insentence_parse_icra(
         params, instruction: str) -> Tuple[str, str, str]:
     """
     Parse long language query into a list of short queries at floor, room, and object level
     Example: "mirror in region bathroom on floor 0" -> ("floor 0", "bathroom", "mirror")
     """
-    client, model = _create_gpt_client()
+    if set(params.main.long_query.spec) == {"obj"}:
+        # return directly and not use the LLM for parsing
+        print("floor, room, object:", None, None, instruction)
+        return [None, None, instruction.strip()]
+
+    backend = resolve_llm_backend(params)
+    if backend == "offline":
+        print("[Offline] Using offline rule-based query parser (models.llm.backend=offline).")
+        return _parse_hier_query_offline(instruction)
+
+    client, model = _create_gpt_client(params)
 
     # Depending on the query spec, parse the query differently:
     if set(params.main.long_query.spec) == {"obj", "room", "floor"}:
@@ -413,10 +417,6 @@ def parse_hier_query_use_prompt_insentence_parse_icra(
         system_prompt = "You are a query parser named Diguo. Your task is to parse a sentence into floor and object."
         prompt = f"Please parse the following sentence: {instruction}"
         prompt += "Output format requirement: a list separated by commas, in the order of floor and object. For example: [Floor 1, Sofa]"
-    elif set(params.main.long_query.spec) == {"obj"}:
-        # return directly and not use the LLM for parsing
-        print("floor, room, object:", None, None, instruction)
-        return [None, None, instruction.strip()]
 
     # if set(params.main.long_query.spec) == {"obj", "room", "floor"}:
     #     system_prompt = "你是一个查询解析器。你的任务是将一句话解析为楼层、房间和物体，如果只能解析出房间或者物体，请将另一个字段置为空, 所有的描述必须是英文。"

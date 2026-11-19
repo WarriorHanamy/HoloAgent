@@ -298,6 +298,14 @@ class Room:
                 obj: Object
                 object_embs.append(obj.embedding)
 
+            if len(object_embs) == 0:
+                if len(self.embeddings) > 0:
+                    object_embs = list(self.embeddings)
+                else:
+                    self.name = self.name or "unknown"
+                    print("room_id, name (no objects/embeddings): ", self.room_id, self.name)
+                    return
+
             represent_feat = feats_denoise_dbscan(object_embs).reshape((1, -1))
             text_feats = get_text_feats_multiple_templates(
                 default_room_types, clip_model, clip_feat_dim)

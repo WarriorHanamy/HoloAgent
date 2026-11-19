@@ -1,7 +1,7 @@
 project_name: ovo
 checkpoint_path: null
 use_wandb: False
-device: cuda:1
+device: cuda:0
 frame_limit: -1 # for debugging, set to -1 to disable
 seed: 0
 slam:
@@ -28,7 +28,7 @@ semantic:
     precomputed: False
     multi_crop: True
     points_per_side: 16
-    sam_ckpt_path: "/home/users/yu.zhao-labs/VLN/vln_tmp/mapdsg/checkpoints/sam2"
+    sam_ckpt_path: "${HOLOAGENT_DATA_ROOT}/checkpoints/sam2"
     mask_res: 384
     sam_version: "2.1"
     sam_encoder: "hiera_t"

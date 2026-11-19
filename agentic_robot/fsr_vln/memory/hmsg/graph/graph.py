@@ -74,42 +74,15 @@ matplotlib.use('Agg')  # 设置为非GUI后端
 # pylint: disable=all
 
 
-def _create_gpt_client() -> Tuple[Any, str]:
-    azure_api_key = os.getenv("AZURE_OPENAI_API_KEY", "")
-    azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT", "")
-    azure_deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT", "")
+from memory.hmsg.utils.antigravity_client import (
+    create_llm_client,
+    resolve_llm_backend,
+    _load_image_as_base64,
+)
 
-    if azure_api_key or azure_endpoint or azure_deployment:
-        if not azure_api_key:
-            raise RuntimeError(
-                "未配置 Azure API Key，请设置 AZURE_OPENAI_API_KEY"
-            )
-        if not azure_endpoint:
-            raise RuntimeError(
-                "未配置 Azure Endpoint，请设置 AZURE_OPENAI_ENDPOINT"
-            )
-        if not azure_deployment:
-            raise RuntimeError(
-                "未配置 Azure Deployment，请设置 AZURE_OPENAI_DEPLOYMENT"
-            )
 
-        client = AzureOpenAI(
-            azure_endpoint=azure_endpoint,
-            api_key=azure_api_key,
-            api_version="2024-02-15-preview",
-        )
-        return client, azure_deployment
-
-    openai_api_key = os.getenv("OPENAI_API_KEY", "")
-    if not openai_api_key:
-        raise RuntimeError(
-            "未配置 OpenAI API Key，请设置 OPENAI_API_KEY；"
-            "或配置 Azure 所需环境变量：AZURE_OPENAI_API_KEY、"
-            "AZURE_OPENAI_ENDPOINT、AZURE_OPENAI_DEPLOYMENT"
-        )
-
-    client = OpenAI(api_key=openai_api_key)
-    return client, "gpt-4o"
+def _create_gpt_client(cfg: Any = None) -> Tuple[Any, str]:
+    return create_llm_client(cfg)
 
 
 class Graph:
@@ -176,7 +149,7 @@ class Graph:
 
         if self.cfg.main.use_gpt:
             self.graph_path = self.cfg.main.graph_path
-            self.client, self.gpt_model = _create_gpt_client()
+            self.client, self.gpt_model = _create_gpt_client(self.cfg)
 
             # load the dataset
             dataset_cfg = {
@@ -2117,17 +2090,29 @@ class Graph:
                 return zero_level_order_ids[floor_id - 1]
 
     def upload2oss(self, retrieved_img_list: list):
+        self.downsampeld_img_list = retrieved_img_list
+        backend = resolve_llm_backend(self.cfg)
+        use_oss = (
+            os.getenv("FSR_VLN_USE_OSS", "0") == "1"
+            and bool(os.getenv("OSS_ACCESS_KEY_ID", "").strip())
+            and backend != "antigravity"
+        )
+        if not use_oss:
+            if backend == "antigravity":
+                # Native Antigravity ACP ingests local image files directly as base64 blocks
+                self.oss_img_list = list(retrieved_img_list)
+            else:
+                # Inline data URI avoids requiring private Aliyun OSS buckets
+                self.oss_img_list = []
+                for img_path in retrieved_img_list:
+                    mime, b64 = _load_image_as_base64(img_path)
+                    self.oss_img_list.append(f"data:{mime};base64,{b64}")
+            return
+
         self.upload_flag = True
         self.force_reupload = False
         self.src_img_root = os.path.dirname(retrieved_img_list[0])
         img_dir_prefix = f"{os.path.basename(self.src_img_root)}/images"
-        img_list = retrieved_img_list  # 不做 sorted
-        # img_list = sorted(
-        #     retrieved_img_list,
-        #     key=lambda x: float(os.path.splitext(os.path.basename(x))[0])
-        # )
-        n_images = len(img_list)
-        self.downsampeld_img_list = img_list
         auth = oss2.ProviderAuth(EnvironmentVariableCredentialsProvider())
         bucket = oss2.Bucket(auth, "oss-cn-beijing.aliyuncs.com", "mapvln")
         self.oss_img_list = []
@@ -2244,19 +2229,12 @@ class Graph:
                 messages=messages_yesno,
             )
             ans_raw = resp_yesno.choices[0].message.content.strip().lower()
-            has_object = (ans_raw == "yes")  # 严格匹配
+            has_object = ans_raw.startswith("yes")
 
             score = 0.0
             if has_object:
                 # Step2: 打分
                 prompt_score = f"On a scale from 0 to 1, how strongly does this image contain a '{query}'? Respond only with a single number (e.g., 0.73)."
-                # prompt_score = (
-                # f"On a scale from 0 to 1, how strongly and prominently does this image show a '{query}'? "
-                # f"Consider both the confidence of presence and the relative size/visual prominence of the object in the image. "
-                # f"If the object is large and visually central, score closer to 1. "
-                # f"If the object is small, partially hidden, or in the background, score lower to 0.5. "
-                # f"Respond only with a single number (e.g., 0.85)."
-                # )
                 messages_score = [
                     {"role": "system", "content": "You are an object detector. Answer only with a single number between 0 and 1, no text."},
                     {
@@ -2273,7 +2251,8 @@ class Graph:
                 )
                 ans_score_raw = resp_score.choices[0].message.content.strip()
                 try:
-                    score = float(ans_score_raw)
+                    m = re.search(r"(?:1(?:\.0+)?|0(?:\.\d+)?)", ans_score_raw)
+                    score = float(m.group(0)) if m else float(ans_score_raw)
                     if not (0.0 <= score <= 1.0):
                         score = 0.0
                 except Exception:
@@ -2330,7 +2309,8 @@ class Graph:
         ans_raw = resp.choices[0].message.content.strip()
 
         try:
-            score = float(ans_raw)
+            m = re.search(r"(?:1(?:\.0+)?|0(?:\.\d+)?)", ans_raw)
+            score = float(m.group(0)) if m else float(ans_raw)
             if not (0.0 <= score <= 1.0):
                 score = 0.0
         except Exception:

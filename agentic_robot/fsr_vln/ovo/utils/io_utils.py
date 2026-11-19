@@ -10,6 +10,16 @@ import yaml
 import os
 
 
+def _expand_env_vars(obj: Any) -> Any:
+    if isinstance(obj, dict):
+        return {k: _expand_env_vars(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_expand_env_vars(v) for v in obj]
+    if isinstance(obj, str):
+        return os.path.expandvars(obj)
+    return obj
+
+
 def load_config(path: str, default_path: str = None,
                 inherit: bool = True) -> Dict[str, Any]:
     """
@@ -38,7 +48,7 @@ def load_config(path: str, default_path: str = None,
         with open(default_path, 'r') as f:
             cfg = yaml.full_load(f)
     update_recursive(cfg, cfg_special)
-    return cfg
+    return _expand_env_vars(cfg)
 
 
 def update_recursive(dict1: Dict[str, Any], dict2: Dict[str, Any]) -> None:

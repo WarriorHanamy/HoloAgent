@@ -15,23 +15,27 @@ def compute_label_feats(
         classes,
         pre_computed_feats_path="text_feats.npy"):
     """Either load precomputed label features or run clip to obtain those."""
-    # check if the text features are pre-computed
-    if os.path.exists(os.path.join(label_feat_path, pre_computed_feats_path)):
-        if ".npy" in pre_computed_feats_path:
-            text_feats = np.load(
-                os.path.join(
-                    label_feat_path,
-                    pre_computed_feats_path))
-    else:
-        # if not, compute, store and return them based on the provided classes
-        # and a clip model
-        text_feats = get_text_feats_multiple_templates(
-            classes, clip_model, clip_feat_dim)
-        np.save(
-            os.path.join(
-                label_feat_path,
-                pre_computed_feats_path),
-            text_feats)
+    stem, ext = os.path.splitext(pre_computed_feats_path)
+    dim_tagged_path = os.path.join(label_feat_path, f"{stem}_dim{clip_feat_dim}{ext}")
+    default_path = os.path.join(label_feat_path, pre_computed_feats_path)
+
+    for candidate in (dim_tagged_path, default_path):
+        if os.path.exists(candidate) and ".npy" in candidate:
+            try:
+                loaded = np.load(candidate)
+                if loaded.ndim == 2 and loaded.shape[0] == len(classes) and loaded.shape[1] == clip_feat_dim:
+                    return loaded, classes
+                print(
+                    f"[label_feats] Ignoring {candidate} due to shape mismatch "
+                    f"(got {loaded.shape}, expected ({len(classes)}, {clip_feat_dim}))."
+                )
+            except Exception as e:
+                print(f"[label_feats] Could not load {candidate} ({e}); will recompute.")
+
+    # Compute, store to dim-tagged cache (avoids clobbering LFS-tracked files), and return
+    text_feats = get_text_feats_multiple_templates(
+        classes, clip_model, clip_feat_dim)
+    np.save(dim_tagged_path, text_feats)
     return text_feats, classes
 
 

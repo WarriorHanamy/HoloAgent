@@ -19,11 +19,29 @@ This repository is the official implementation of the paper:
 
 
 ## 🏗 Setup
-Following instruction are for an Ubuntu>=20.04 system, with installed Conda and CUDA support.
+Following instructions are for an Ubuntu>=20.04 system with CUDA support (single GPU ≥ 12 GB VRAM is sufficient for offline reproduction; no ROS 2 or training required).
 
-Clone repository with recursive flag:
+### Option A: `uv` Setup (Recommended)
+```bash
+cd agentic_robot/fsr_vln
 
-And set up the conda environment:
+# 1. Create Python 3.10 virtual environment and install dependencies
+uv venv --python 3.10 .venv
+uv pip install --python .venv/bin/python \
+  --index-strategy unsafe-best-match \
+  -r requirements-uv.txt
+
+# 2. Install SAM 2 (SAM2_BUILD_CUDA=0 avoids requiring system nvcc;
+#    --no-deps preserves torch==2.5.0+cu121)
+SAM2_BUILD_CUDA=0 uv pip install --python .venv/bin/python \
+  --no-build-isolation --no-deps \
+  "git+https://github.com/facebookresearch/sam2.git"
+
+# 3. Install fsr_vln in editable mode
+uv pip install --python .venv/bin/python --no-build-isolation --no-deps -e .
+```
+
+### Option B: Conda Setup
 ```bash
 # conda env
 conda env create -f environment.yaml
@@ -43,25 +61,52 @@ pip install -e . --no-build-isolation
 pip install -e .
 ```
 
+### Download Pretrained Checkpoints
+Set a data root outside the repository:
+```bash
+export HOLOAGENT_DATA_ROOT=/path/to/fsr_vln_data
+mkdir -p "${HOLOAGENT_DATA_ROOT}/checkpoints/sam2"
+
+# Download SAM 2.1 hiera_large checkpoint (used by G1 configs)
+curl -L -o "${HOLOAGENT_DATA_ROOT}/checkpoints/sam2/sam2.1_hiera_large.pt" \
+  https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_large.pt
+```
+`SigLIP-384` (`hf-hub:timm/ViT-SO400M-14-SigLIP-384`) is downloaded automatically by `open_clip` on first run.
+
 
 ## 🖼️ Dataset Preparation
-FSR-VLN uses the G1 RGB-D sequences organized under the data root specified by `--data_dir` in `run_holoagent_mapping.py`.
+FSR-VLN uses the G1 RGB-D sequences from [HorizonRobotics/fsrvln_datasets](https://huggingface.co/datasets/HorizonRobotics/fsrvln_datasets) organized under `${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/data`:
 
-### Data instructions
+```bash
+mkdir -p "${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/data/input/datasets/G1/decoded_scans"
+curl -L -o "${HOLOAGENT_DATA_ROOT}/icra_sh3f.zip" \
+  https://huggingface.co/datasets/HorizonRobotics/fsrvln_datasets/resolve/main/icra_sh3f.zip
+unzip -q "${HOLOAGENT_DATA_ROOT}/icra_sh3f.zip" \
+  -d "${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/data/input/datasets/G1/decoded_scans"
+ln -sfn icra_sh3f \
+  "${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/sh_3f"
+```
+
+### Data directory layout
 ```text
-${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/data/   (--data_dir)
-├── input/
-│   └── datasets/
-│       └── G1/                                     (--dataset_name)
-│           └── decoded_scans/
-│               ├── sh_3f/                          (scene_name)
-│               ├── ic_3f/
-│               ├── ic_4f/
-│               └── ic_7f/
-└── output/
-    └── G1/
-        └── holoagent_mapping-g1/                   (--experiment_name)
-            └── sh_3f/
+${HOLOAGENT_DATA_ROOT}/
+├── checkpoints/
+│   └── sam2/
+│       └── sam2.1_hiera_large.pt
+└── VLN/instance_tracking/data/                     (--data_dir)
+    ├── input/
+    │   └── datasets/
+    │       └── G1/                                 (--dataset_name)
+    │           └── decoded_scans/
+    │               ├── icra_sh3f/                  (unzipped from HF)
+    │               ├── sh_3f -> icra_sh3f          (scene_name)
+    │               ├── ic_3f/
+    │               ├── ic_4f/
+    │               └── ic_7f/
+    └── output/
+        └── G1/
+            └── holoagent_mapping-g1/               (--experiment_name)
+                └── sh_3f/
 ```
 
 `run_holoagent_mapping.py` reads scene data from:
@@ -79,10 +124,10 @@ ${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/data/output/G1/holoagent_mapping-g1
 G1 RGB-D sequences
         │
         ▼
-instance mapping
+instance mapping (SAM 2.1 + SigLIP-384)
         │
         ▼
-OVO output
+OVO output (ovo_map.ckpt)
         │
         ▼
 hierarchical multi-modal scene graphs (HMSG)
@@ -93,35 +138,70 @@ visualization / graph query / navigation reasoning
 
 
 ## :rocket: Run
-### Create hierarchical multi-modal scene graphs:
-Use the maintained G1 entry script:
+### 1. Create hierarchical multi-modal scene graphs:
+Use the maintained G1 entry script (defaults to `CUDA_VISIBLE_DEVICES=0` and `.venv/bin/python` if present):
 ```bash
-cd run_bash/
+export HOLOAGENT_DATA_ROOT=/path/to/fsr_vln_data
+cd agentic_robot/fsr_vln/run_bash
 bash run_g1.sh
 ```
 
-The current `run_g1.sh` launches `run_holoagent_mapping.py` with the following key arguments:
+`run_g1.sh` launches `run_holoagent_mapping.py` with:
 ```bash
-CUDA_VISIBLE_DEVICES=2,3,4,5,6,7 python run_holoagent_mapping.py \
- --data_dir ${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/data \
+CUDA_VISIBLE_DEVICES=0 .venv/bin/python run_holoagent_mapping.py \
+ --data_dir "${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/data" \
  --dataset_name G1 \
  --experiment_name holoagent_mapping-g1 \
  --scenes_list sh_3f \
  --build_hmsg \
  --run \
- --hmsg_config_path ${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/holoagent_mapping/mapvln/ovo_slam/configs/hmsg_bridge_sh3f.yaml \
- --cfg_path ${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/holoagent_mapping/mapvln/ovo_slam/configs/ovo_g1_sh3f.yaml
+ --hmsg_config_path configs/hmsg_bridge_sh3f.yaml \
+ --cfg_path configs/ovo_g1_sh3f.yaml
 ```
 
 This stage runs instance mapping first and then builds the HMSG scene graph for each scene listed in `--scenes_list`. For the default script, the input scene is `sh_3f`, and the output will be saved under:
 ```text
-${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/data/output/G1/holoagent_mapping-g1/sh_3f
+${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/data/output/G1/holoagent_mapping-g1/sh_3f/graph_<timestamp>/
 ```
 
-### Visualize and query scene graph
+### 2. Query & evaluate HMSG (Fast Matching / Native Antigravity Slow Reasoning)
+
+FSR-VLN's LLM instruction parsing and VLM slow-reasoning verification natively run on **Antigravity Gemini 4 Neon** via the official local ACP protocol (`agy acp --stdio`) with native base64 image blocks (no reverse proxy, no external API key, and no Aliyun OSS upload needed).
+
+- **Fast-to-Slow Reasoning with Antigravity Gemini 4 Neon (High — default)**:
+  ```bash
+  export HOLOAGENT_DATA_ROOT=/path/to/fsr_vln_data
+  cd agentic_robot/fsr_vln
+  .venv/bin/python visualize_query_graph/visualize_query_graph_icra_sh3f.py \
+    main.fast_slow_method=slow_reasoning main.use_gpt=true \
+    models.llm.backend=antigravity models.llm.effort=high
+  ```
+- **Switch to Antigravity Gemini 4 Neon (Extra / XHigh)** (via Hydra flag or env var):
+  ```bash
+  .venv/bin/python visualize_query_graph/visualize_query_graph_icra_sh3f.py \
+    main.fast_slow_method=slow_reasoning main.use_gpt=true \
+    models.llm.effort=extra
+  # Equivalently:
+  # ANTIGRAVITY_EFFORT=extra .venv/bin/python ...
+  # ANTIGRAVITY_MODEL=gemini-4-neon-xhigh .venv/bin/python ...
+  ```
+- **Pure offline Fast Matching (no LLM/VLM calls at all)**:
+  ```bash
+  .venv/bin/python visualize_query_graph/visualize_query_graph_icra_sh3f.py \
+    main.fast_slow_method=fast_match main.use_gpt=false models.llm.backend=offline
+  ```
+- *(Optional)* **OpenAI / Azure OpenAI fallback**:
+  ```bash
+  export FSR_VLN_LLM_BACKEND=openai OPENAI_API_KEY=your_key
+  # Optional: export OPENAI_BASE_URL=... OPENAI_MODEL=gpt-4o
+  # Or Azure: export FSR_VLN_LLM_BACKEND=azure AZURE_OPENAI_API_KEY=... AZURE_OPENAI_ENDPOINT=... AZURE_OPENAI_DEPLOYMENT=...
+  ```
+> Set `FSR_VLN_HEADLESS=1` when running without a display to skip Open3D window rendering while still saving `.ply` and `all_results.json`. Pass `+main.max_queries=N` for quick smoke tests.
+
+### 3. Visualize OVO scene output
 ```bash
-python visualize_scene.py \
-  --working_dir ${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/holoagent_mapping/mapvln/ovo_slam \
+.venv/bin/python visualize_scene.py \
+  --working_dir "${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking" \
   --run_path data/output/G1/holoagent_mapping-g1/sh_3f \
   --visualize_obj
 ```

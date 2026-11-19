@@ -6,12 +6,16 @@ main:
   depth_cut: 10.0
   dataset: horizon 
   scene_id: icra_ic3f
-  dataset_path: /mnt/holoagent/fsrvln/rgbd_datasets/
-  graph_path: ${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/data/output/G1/holoagent_mapping-g1/ic_3f/graph_20260423191237
-  save_path:  ${HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/data/output/G1/holoagent_mapping-g1-eval
+  dataset_path: ${oc.env:HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/data/input/datasets/G1/decoded_scans
+  graph_path: ${oc.env:HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/data/output/G1/holoagent_mapping-g1/ic_3f
+  save_path: ${oc.env:HOLOAGENT_DATA_ROOT}/VLN/instance_tracking/data/output/G1/holoagent_mapping-g1-eval
   long_query:
     spec: [obj, room, floor] # [obj, room], [obj, floor], [obj].
 models:
   clip:
     type: SigLIP-384 #ViT-B-32 #ViT-H-14
-    checkpoint: hf-hub:timm/ViT-SO400M-14-SigLIP-384 
+    checkpoint: hf-hub:timm/ViT-SO400M-14-SigLIP-384
+  llm:
+    backend: antigravity # antigravity | openai | azure | offline
+    effort: high # high -> gemini-4-neon-high, extra/xhigh -> gemini-4-neon-xhigh
+    model: null # optional explicit model ID override (e.g. gemini-4-neon-high / gemini-4-neon-xhigh)

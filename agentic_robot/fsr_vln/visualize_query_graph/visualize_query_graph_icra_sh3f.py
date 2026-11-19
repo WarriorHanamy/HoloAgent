@@ -53,39 +53,60 @@ _DEFAULT_CLIP_CHECKPOINT_BY_TYPE = {
 }
 
 
+def _resolve_graph_path(graph_path: str) -> str:
+    if os.path.isdir(os.path.join(graph_path, "floors")):
+        return graph_path
+    if os.path.isdir(graph_path):
+        candidates = sorted(
+            d for d in os.listdir(graph_path)
+            if d.startswith("graph_") and os.path.isdir(os.path.join(graph_path, d))
+        )
+        if candidates:
+            resolved = os.path.join(graph_path, candidates[-1])
+            print(f"Auto-resolved latest graph directory: {resolved}")
+            return resolved
+    return graph_path
+
+
 def visualize_and_save(room_pcd, obj_pcd, end_sphere, save_path="scene.png"):
-    vis = o3d.visualization.Visualizer()
-    vis.create_window(visible=True)  # 设置 False 可后台渲染
-    vis.add_geometry(room_pcd)
-    vis.add_geometry(obj_pcd)
-    vis.add_geometry(end_sphere)
+    visible = bool(os.environ.get("DISPLAY")) and os.environ.get("FSR_VLN_HEADLESS", "0") != "1"
+    try:
+        vis = o3d.visualization.Visualizer()
+        if not vis.create_window(visible=visible):
+            print(f"[WARN] Could not open Open3D window; skipping PNG render for {save_path}")
+            return
+        vis.add_geometry(room_pcd)
+        vis.add_geometry(obj_pcd)
+        vis.add_geometry(end_sphere)
 
-    vis.poll_events()
-    vis.update_renderer()
+        vis.poll_events()
+        vis.update_renderer()
 
-    # 计算房间和物体的中心
-    room_center = np.array(room_pcd.get_center())
-    obj_center = np.array(obj_pcd.get_center())
+        # 计算房间和物体的中心
+        room_center = np.array(room_pcd.get_center())
+        obj_center = np.array(obj_pcd.get_center())
 
-    # 相机位置：在房间中心 + y方向上方 5m
-    cam_pos = room_center + np.array([0, 5.0, 0.0])
+        # 相机位置：在房间中心 + y方向上方 5m
+        cam_pos = room_center + np.array([0, 5.0, 0.0])
 
-    # 设置相机参数
-    ctr = vis.get_view_control()
-    ctr.set_lookat(obj_center)                     # 看向物体中心
-    ctr.set_front((cam_pos - obj_center) /
-                  np.linalg.norm(cam_pos - obj_center))  # 相机朝向
-    ctr.set_up([0, 1, 0])                          # 这里假设 z 作为水平参考，上方向定为 z
+        # 设置相机参数
+        ctr = vis.get_view_control()
+        ctr.set_lookat(obj_center)                     # 看向物体中心
+        ctr.set_front((cam_pos - obj_center) /
+                      np.linalg.norm(cam_pos - obj_center))  # 相机朝向
+        ctr.set_up([0, 1, 0])                          # 这里假设 z 作为水平参考，上方向定为 z
 
-    ctr.set_zoom(0.7)  # 缩放调节
+        ctr.set_zoom(0.7)  # 缩放调节
 
-    vis.poll_events()
-    vis.update_renderer()
+        vis.poll_events()
+        vis.update_renderer()
 
-    # 保存截图
-    vis.capture_screen_image(save_path)
-    vis.destroy_window()
-    print(f"Saved visualization to {save_path}")
+        # 保存截图
+        vis.capture_screen_image(save_path)
+        vis.destroy_window()
+        print(f"Saved visualization to {save_path}")
+    except Exception as e:
+        print(f"[WARN] Visualization render skipped ({e}) for {save_path}")
 
 
 instruction_templelate_sh3f_obj = [
@@ -219,7 +240,7 @@ def main(params: DictConfig):
     print("dataset_path: ", params.main.dataset_path)
     print("save_path: ", save_dir)
     hmsg = Graph(params)
-    hmsg.load_hmsg_graph(params.main.graph_path)
+    hmsg.load_hmsg_graph(_resolve_graph_path(params.main.graph_path))
     hmsg.vln_result_dir = os.path.join(
         save_dir, f"fsrvln_result_online_{spatial_reasoning_method}_{fast_slow_method}")
     # 自主判断房间类型和名字
@@ -261,6 +282,10 @@ def main(params: DictConfig):
     sum_VLM_Rethinking = 0.0
     sum_Re_Matching = 0.0
     sum_LLM_parse = 0.0
+
+    max_queries = params.main.get("max_queries", None)
+    if max_queries is not None and int(max_queries) > 0:
+        final_instruction_telepalte = final_instruction_telepalte[:int(max_queries)]
 
     for query_instruction in final_instruction_telepalte:
         print(query_instruction)

@@ -124,9 +124,12 @@ class ScanNet(BaseDataset):
             except ValueError:
                 return name
 
+        color_dir = self.dataset_path / "color"
+        if not color_dir.exists() and (self.dataset_path / "images").exists():
+            color_dir = self.dataset_path / "images"
         self.color_paths = sorted(
-            list((self.dataset_path / "color").glob("*.jpg")) +
-            list((self.dataset_path / "color").glob("*.png")),
+            list(color_dir.glob("*.jpg")) +
+            list(color_dir.glob("*.png")),
             key=_name_key
         )
         self.depth_paths = sorted(
@@ -233,9 +236,12 @@ class G1(BaseDataset):
         # load time
         self.time_stamps = []
 
+        color_dir = self.dataset_path / "color"
+        if not color_dir.exists() and (self.dataset_path / "images").exists():
+            color_dir = self.dataset_path / "images"
         self.color_paths = sorted(
-            list((self.dataset_path / "color").glob("*.jpg")) +
-            list((self.dataset_path / "color").glob("*.png")),
+            list(color_dir.glob("*.jpg")) +
+            list(color_dir.glob("*.png")),
             key=_name_key
         )
         self.depth_paths = sorted(
