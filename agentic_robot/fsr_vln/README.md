@@ -213,6 +213,7 @@ The visualization stage reads the generated graph files from the mapping output 
 Zero-shot offline reproduction on Unitree-G1 **`icra_ic7f`** (3520 RGB-D frames, 20m × 39m ring building, 197.2m exploration, 8 rooms / 440 views / 1280 objects) and **`icra_sh3f`** (844 frames) using `uv` (Python 3.10, PyTorch 2.5.0+cu121) and native Antigravity ACP (`gemini-4-neon-high` / `gemini-4-neon-xhigh`):
 
 ### 1. Multi-Room Ring Building (`ic_7f`) — Blind Exploration Detours vs. Post-Exploration Reuse & Open/Closed Doors
+- **Interactive Temporal Replay & 4-Layer HMSG Scene Graph Explorer (Self-Contained HTML, no heavy 3D cloud)**: [`reproduction_results/ic_7f/ic7f_reuse_report.html`](reproduction_results/ic_7f/ic7f_reuse_report.html)
 - **Full 60s Showcase Video (From-Zero 197.2m Exploration → 8-Room HMSG & Open/Closed Doors → 4 Reuse Missions incl. Slow VLM Rescue & Dynamic Door Closure Rerouting)**: [`reproduction_results/ic_7f/FSR-VLN_ic7f_reuse_experience.mp4`](reproduction_results/ic_7f/FSR-VLN_ic7f_reuse_experience.mp4)
 - **Native Antigravity `gemini-4-neon-high` Multi-Room Trace**: [`ic7f_full_experience_results.json`](reproduction_results/ic_7f/ic7f_full_experience_results.json)
 
