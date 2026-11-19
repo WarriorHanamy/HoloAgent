@@ -212,14 +212,16 @@ The visualization stage reads the generated graph files from the mapping output 
 
 Zero-shot offline reproduction on Unitree-G1 `icra_sh3f` (844 RGB-D frames) using `uv` (Python 3.10, PyTorch 2.5.0+cu121) and native Antigravity ACP (`gemini-4-neon-high` / `gemini-4-neon-xhigh`):
 
-- **Demo Video (1280×720 @ 30fps H.264)**: [`reproduction_results/sh_3f/FSR-VLN_sh3f_demo.mp4`](reproduction_results/sh_3f/FSR-VLN_sh3f_demo.mp4)
+- **Full Closed-Loop Experience Video (Mapping → Slow VLM Rescue → 51.2m Multi-Goal 3D Navigation)**: [`reproduction_results/sh_3f/FSR-VLN_sh3f_full_experience.mp4`](reproduction_results/sh_3f/FSR-VLN_sh3f_full_experience.mp4)
+- **Scene & Query Demo Video (1280×720 @ 30fps H.264)**: [`reproduction_results/sh_3f/FSR-VLN_sh3f_demo.mp4`](reproduction_results/sh_3f/FSR-VLN_sh3f_demo.mp4)
 - **Logs & JSON Outputs**:
   - Mapping runtime: [`mapping_runtime.log`](reproduction_results/sh_3f/mapping_runtime.log) (`1 floor / 3 rooms / 107 views / 374 objects`, HMSG build `246.75s`)
+  - Full Closed-Loop Slow Rethinking Rescue traces: [`full_experience_results.json`](reproduction_results/sh_3f/full_experience_results.json)
   - Native Antigravity `gemini-4-neon-high` Slow Reasoning results: [`demo_queries_neon_high.json`](reproduction_results/sh_3f/demo_queries_neon_high.json)
   - Full 23-query Fast Matching results: [`fast_match_23queries_results.json`](reproduction_results/sh_3f/fast_match_23queries_results.json)
 
-| 3D RGB Reconstruction | 4-Layer HMSG Hierarchy |
+| Slow VLM Rescue: Laptop (CLIP Miss → Frame 3) | Slow VLM Rescue: Pantry Coffee Machine (CLIP Miss → Frame 7) |
 |:---:|:---:|
-| ![](reproduction_results/sh_3f/previews/01_rgb_3d_map.png) | ![](reproduction_results/sh_3f/previews/02_hmsg_4layer.png) |
-| **Explicit Target (VLM Verified: 0.95)** | **Implicit Reasoning ("I am thirsty...")** |
-| ![](reproduction_results/sh_3f/previews/03_query_sofa_verified.png) | ![](reproduction_results/sh_3f/previews/04_query_drink_implicit.png) |
+| ![](reproduction_results/sh_3f/previews_full/01_laptop_slow_rescue.png) | ![](reproduction_results/sh_3f/previews_full/02_pantry_slow_rescue.png) |
+| **22.4m Collision-Free 3D Navigation → Pantry Arrived** | **19.1m Collision-Free 3D Navigation → Drink Bottle (0.98 Verified)** |
+| ![](reproduction_results/sh_3f/previews_full/03_pantry_22m_nav_arrived.png) | ![](reproduction_results/sh_3f/previews_full/04_thirsty_19m_nav_arrived.png) |

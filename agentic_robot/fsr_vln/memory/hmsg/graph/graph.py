@@ -2016,6 +2016,64 @@ class Graph:
                 self.rooms[i].infer_room_type_from_view_embedding(
                     default_room_types, self.clip_model, self.clip_feat_dim
                 )
+            elif generate_method == "vlm":
+                # Native VLM room naming from representative room view images
+                if not hasattr(self, "client") or self.client is None:
+                    self.client, self.gpt_model = _create_gpt_client(self.cfg)
+                room = self.rooms[i]
+                img_paths = []
+                if hasattr(room, "views") and len(room.views) > 0:
+                    n_sample = min(6, len(room.views))
+                    idxs = np.linspace(0, len(room.views) - 1, n_sample, dtype=int)
+                    for vi in idxs:
+                        v = room.views[int(vi)]
+                        if getattr(v, "img_path", None) and os.path.exists(v.img_path):
+                            img_paths.append(v.img_path)
+                if not img_paths and hasattr(self, "dataset") and getattr(room, "sample_images", None):
+                    n_sample = min(6, len(room.sample_images))
+                    idxs = np.linspace(0, len(room.sample_images) - 1, n_sample, dtype=int)
+                    for si in idxs:
+                        idx = room.sample_images[int(si)]
+                        p = self.dataset.frameId2imgPath[idx]
+                        if os.path.exists(p):
+                            img_paths.append(p)
+                if img_paths:
+                    self.upload2oss(img_paths)
+                    types_str = ", ".join(default_room_types) if default_room_types else "Office, Pantry, Office-Pantry, Corridor, Meeting Room"
+                    content = [
+                        {
+                            "type": "text",
+                            "text": (
+                                f"These images were captured inside the same indoor area. "
+                                f"Note: if ANY image shows a pantry counter, sink, coffee machine, kettle, or kitchenette alongside workspaces, classify it as 'Office Pantry' (or 'Pantry'). "
+                                f"Choose the single best room type strictly from: [{types_str}]. "
+                                f"Respond with ONLY the exact room type name from the list, nothing else."
+                            ),
+                        }
+                    ]
+                    for img_ref in self.oss_img_list:
+                        content.append({"type": "image_url", "image_url": {"url": img_ref}})
+                    resp = self.client.chat.completions.create(
+                        model=self.gpt_model,
+                        messages=[
+                            {"role": "system", "content": "You are an indoor room classifier. Output only the exact room type label."},
+                            {"role": "user", "content": content},
+                        ],
+                    )
+                    inferred = resp.choices[0].message.content.strip().strip("\"'., ")
+                    if default_room_types:
+                        matched = next((rt for rt in default_room_types if rt.lower() in inferred.lower()), inferred)
+                        room.name = matched
+                    else:
+                        room.name = inferred
+                    print(f"room_id, vlm_name: {room.room_id} -> {room.name} (from {len(img_paths)} views)")
+                else:
+                    room.infer_room_type_from_objects(
+                        infer_method="obj_embedding",
+                        default_room_types=default_room_types,
+                        clip_model=self.clip_model,
+                        clip_feat_dim=self.clip_feat_dim,
+                    )
             else:
                 return NotImplementedError
 
@@ -2229,7 +2287,8 @@ class Graph:
                 messages=messages_yesno,
             )
             ans_raw = resp_yesno.choices[0].message.content.strip().lower()
-            has_object = ans_raw.startswith("yes")
+            ans_last = ans_raw.splitlines()[-1].strip() if ans_raw else ""
+            has_object = ans_last.startswith("yes") or ans_raw.startswith("yes")
 
             score = 0.0
             if has_object:
@@ -2316,6 +2375,7 @@ class Graph:
         except Exception:
             score = 0.0
 
+        self._last_vlm_score = score
         has_object = score >= score_threshold
         print(
             f"[GPT] Image: {img_url} → score={score:.3f}, has_object={has_object}")
@@ -2404,8 +2464,18 @@ class Graph:
         return best_view_image_path
 
     def find_view_by_imgpath(self, img_path):
+        if not img_path:
+            return None, None
         for view in self.views:
             if view.img_path == img_path:
+                return view, view.img_id
+        real_target = os.path.realpath(img_path)
+        base_target = os.path.basename(img_path)
+        for view in self.views:
+            if view.img_path and os.path.realpath(view.img_path) == real_target:
+                return view, view.img_id
+        for view in self.views:
+            if view.img_path and os.path.basename(view.img_path) == base_target:
                 return view, view.img_id
         return None, None
 
@@ -2646,46 +2716,37 @@ class Graph:
         # import pdb; pdb.set_trace()
         # assert best_view is not None, "best view is None"
 
+        query_time_consumer["fast_match_object_id"] = str(best_object.object_id)
+        query_time_consumer["fast_match_object_name"] = str(getattr(best_object, "name", ""))
+
         if best_view is None:
-            total_online_query_time = FastMatching_time
-            query_time_consumer["total_query_time"] = f"{total_online_query_time:.4f} 秒"
-            with open(save_json_path, "w", encoding="utf-8") as f:
-                json.dump(query_time_consumer, f, ensure_ascii=False, indent=4)
-            res_dict = dict()
-            res_dict["FastMatching"] = FastMatching_time
-            res_dict["ObjectInImageCheck"] = 0.0
-            res_dict["VLM_Rethinking"] = 0.0
-            res_dict["Re_Matching"] = 0.0
-            res_dict["Total_Time"] = total_online_query_time
-            return res_dict, target_id, target_room_id
+            print(
+                f"[FSR] Top-1 fast-matched object {best_object.object_id} ({best_object.name}) "
+                "has no sampled best_view -> triggering Slow Reasoning directly."
+            )
+            goal_image_path_online = None
+            best_view_img_id = None
+            Object_in_goal_view_check = False
+            Object_in_goal_view_check_time = 0.0
+            query_time_consumer["top1_image_path_online_object_best_view"] = None
+            query_time_consumer["Object_in_goal_view_check_time"] = "0.0000 秒"
+            query_time_consumer["Object_in_goal_view_check_res"] = False
+            query_time_consumer["vlm_verify_score"] = None
+        else:
+            best_view_image_path = best_view.img_path
+            best_view_img_id = best_view.img_id
+            best_view_view_id = best_view.view_id
+            print("online_best_view_image_path: ", best_view_image_path)
+            goal_image_path_online = best_view_image_path
+            query_time_consumer["top1_image_path_online_object_best_view"] = goal_image_path_online
+            start_time = time.time()
+            Object_in_goal_view_check = self.detect_object_in_image(
+                best_view_image_path, object_query[query_id])
+            Object_in_goal_view_check_time = time.time() - start_time
+            query_time_consumer["Object_in_goal_view_check_time"] = f"{Object_in_goal_view_check_time:.4f} 秒"
+            query_time_consumer["Object_in_goal_view_check_res"] = Object_in_goal_view_check
+            query_time_consumer["vlm_verify_score"] = getattr(self, "_last_vlm_score", None)
 
-        # assert len(target_id) == 5
-        # top2_best_view_image_path, top2_best_view_img_id, top2_best_object_id = self.get_object_info(target_id[1])
-        # top3_best_view_image_path, top3_best_view_img_id, top3_best_object_id = self.get_object_info(target_id[2])
-        # top4_best_view_image_path, top4_best_view_img_id, top4_best_object_id = self.get_object_info(target_id[3])
-        # top5_best_view_image_path, top5_best_view_img_id, top5_best_object_id = self.get_object_info(target_id[4])
-
-        # best_view_image_path = self.dataset.frameId2imgPath[best_view.img_id]
-        best_view_image_path = best_view.img_path
-        best_view_img_id = best_view.img_id
-        best_view_view_id = best_view.view_id
-        print("online_best_view_image_path: ", best_view_image_path)
-        # print("online_top2_best_view_image_path: ", top2_best_view_image_path)
-        # print("online_top3_best_view_image_path: ", top3_best_view_image_path)
-        # print("online_top4_best_view_image_path: ", top4_best_view_image_path)
-        # print("online_top5_best_view_image_path: ", top5_best_view_image_path)
-        goal_image_path_online = best_view_image_path
-        query_time_consumer["top1_image_path_online_object_best_view"] = goal_image_path_online
-        # query_time_consumer["top2_image_path_online_object_best_view"] = top2_best_view_image_path
-        # query_time_consumer["top3_image_path_online_object_best_view"] = top3_best_view_image_path
-        # query_time_consumer["top4_image_path_online_object_best_view"] = top4_best_view_image_path
-        # query_time_consumer["top5_image_path_online_object_best_view"] = top5_best_view_image_path
-        start_time = time.time()
-        Object_in_goal_view_check = self.detect_object_in_image(
-            best_view_image_path, object_query[query_id])
-        Object_in_goal_view_check_time = time.time() - start_time
-        query_time_consumer["Object_in_goal_view_check_time"] = f"{Object_in_goal_view_check_time:.4f} 秒"
-        query_time_consumer["Object_in_goal_view_check_res"] = Object_in_goal_view_check
         if Object_in_goal_view_check:
             total_online_query_time = FastMatching_time + Object_in_goal_view_check_time
             query_time_consumer["total_query_time"] = f"{total_online_query_time:.4f} 秒"
@@ -2699,7 +2760,7 @@ class Graph:
             res_dict["Total_Time"] = total_online_query_time
             return res_dict, target_id, target_room_id
 
-        else:  # run gpt-refine
+        else:  # run slow-reasoning VLM refinement
             total_online_query_time = FastMatching_time + Object_in_goal_view_check_time
             all_image_incides = []
             all_image_embedding = []
@@ -2714,27 +2775,24 @@ class Graph:
             print("all_image_incides: ", len(all_image_incides))
             print("all_image_embedding: ", len(all_image_embedding))
             room_ids = target_ids
+            gpt_check_time = 0.0
+            gpt_refine_time = 0.0
+            mean_depth_online = -1.0
+            avg_distance_in_gptview = -1.0
             for room_id in room_ids[:1]:
                 print(f"find goal image in room {room_id}")
                 start_time = time.time()
-                # find goal image by clip
-                # room_img_indices = rooms_list[room_id].represent_images[0] # use repr images in curr room
-                # room_img_indices = rooms_list[room_id].sample_images # use all images in curr room
-                # room_image_local_paths = [self.dataset.frameId2imgPath[idx] for idx in room_img_indices]
-                # room_image_local_feature = rooms_list[room_id].embeddings
-                # room_image_local_feature = rooms_list[room_id].clip_embeddings
-                # room_embeddings = np.stack(room_image_local_feature)   #
-                # [view_num, 768]
                 gloal_embedding = np.stack(
-                    all_image_embedding)  # [total_view_num, 768]
+                    all_image_embedding)  # [total_view_num, D]
                 sims = np.dot(
                     query_object_text_feats[0],
-                    gloal_embedding.T)  # [1, view_num]，query和每个view的相似度
-                clip_max_idx = np.argmax(sims)  # 找到最大相似度的位置
+                    gloal_embedding.T)  # [view_num]
+                clip_max_idx = np.argmax(sims)
 
-                # 计算 top_k，确保不超过 sims 的长度
-                top_k = min(24, sims.shape[0])
-                top_idx = np.argsort(sims)[-top_k:][::-1]  # 从大到小取前 top_k 索引
+                # Keep top-K candidate views concise for sharp VLM reasoning
+                vlm_topk = int(os.getenv("FSR_VLN_VLM_TOPK", "8"))
+                top_k = min(vlm_topk, sims.shape[0])
+                top_idx = np.argsort(sims)[-top_k:][::-1]
 
                 # find goal image by clip
                 goal_image_path_by_clip = self.dataset.frameId2imgPath[all_image_incides[clip_max_idx]]
@@ -2746,7 +2804,7 @@ class Graph:
                 query_time_consumer["goal_image_path_by_clip"] = goal_image_path_by_clip
                 start_time = time.time()
 
-                # find goal image by gpt
+                # find goal image by VLM
                 room_clip_refined_topk_image_local_paths = [
                     self.dataset.frameId2imgPath[all_image_incides[idx]] for idx in top_idx]
                 room_image_local_paths = room_clip_refined_topk_image_local_paths
@@ -2756,126 +2814,121 @@ class Graph:
                     room_image_local_paths, instruction
                 )
                 print(response)
-                match = re.findall(r"\d+", response)
-                if match:
-                    frame_id = match[0]
-                    goal_img_path = self.downsampeld_img_list[int(frame_id)]
+                tag_match = re.search(r"<frame_id>\s*(\d+)\s*</frame_id>", response)
+                if tag_match:
+                    frame_idx = int(tag_match.group(1))
                 else:
-                    print("No frame id found in response text.")
+                    nums = [int(x) for x in re.findall(r"\d+", response) if 0 <= int(x) < len(self.downsampeld_img_list)]
+                    frame_idx = nums[0] if nums else -1
+                if 0 <= frame_idx < len(self.downsampeld_img_list):
+                    goal_img_path = self.downsampeld_img_list[frame_idx]
+                else:
+                    print("No valid frame id found in response text.")
                     goal_img_path = None
                 goal_image_path_by_gpt = goal_img_path
                 end_time = time.time()
                 query_time_consumer[f"goal_image_reterival_by_gpt_{room_id}"] = end_time - start_time
                 query_time_consumer["goal_image_path_by_gpt"] = goal_image_path_by_gpt
+                query_time_consumer["vlm_choose_response"] = response
                 print(
                     f"find goal image by gpt 运行时间: {end_time - start_time:.4f} 秒")
                 print("goal_image_path_by_gpt: ", goal_image_path_by_gpt)
 
-                # judge whether object in goal image
-                # goal_index = all_image_incides.index(best_view_img_id)
-                # goal_image_clip_embedding = np.array(all_image_embedding[goal_index])
-                # goal_sim_mat = np.dot(query_object_text_feats[0], goal_image_clip_embedding.T)
-                # select_imgs = [goal_image_path_online, top2_best_view_image_path, top3_best_view_image_path,
-                # top4_best_view_image_path, top5_best_view_image_path,
-                # goal_image_path_by_gpt]
                 select_imgs = [
-                    goal_image_path_online,
-                    goal_image_path_by_clip,
-                    goal_image_path_by_gpt]
+                    p for p in [goal_image_path_online, goal_image_path_by_clip, goal_image_path_by_gpt]
+                    if p is not None
+                ]
+                # Deduplicate while preserving order
+                select_imgs = list(dict.fromkeys(select_imgs))
 
                 gpt_check_start_time = time.time()
                 gpt_check_result, best_image_path = self.detect_and_select_best_gpt(
                     select_imgs, object_query[query_id])
                 gpt_check_time = time.time() - gpt_check_start_time
                 query_time_consumer["gpt_check_time"] = gpt_check_time
-                # print("goal_sim_mat:" , goal_sim_mat)
-                # if goal_sim_mat[0, query_id] > 0.3:
-                print("检测结果:", gpt_check_result)      # [True, False]
+                print("检测结果:", gpt_check_result)
                 print("最佳图像:", best_image_path)
                 query_time_consumer["检测结果"] = gpt_check_result
                 query_time_consumer["最佳图像"] = best_image_path
-                # query_time_consumer["goal_sim_mat"] = goal_sim_mat.tolist()
-                print(best_image_path != goal_image_path_online)
-                print("update_flatg ", update_flag)
+                online_failed = (goal_image_path_online is None) or (
+                    len(gpt_check_result) > 0 and gpt_check_result[0] is False
+                )
                 avg_distance_in_gptview = -1.0
                 gpt_refine_time_start = time.time()
-                if gpt_check_result[0] is False and update_flag and best_image_path != goal_image_path_online and best_image_path is not None:
-                    print("performing gpt refineing..............................")
+                if online_failed and update_flag and best_image_path != goal_image_path_online and best_image_path is not None:
+                    print("performing gpt refining..............................")
                     objs_embedding_in_view = []
                     gpt_refine_best_view, gpt_refine_best_view_img_id = self.find_view_by_imgpath(
                         best_image_path)
-                    assert gpt_refine_best_view is not None
-                    object_ids_in_view = gpt_refine_best_view.object_ids
-                    for object_id in object_ids_in_view:
-                        object_target = self.find_object_by_object_id(
-                            object_id)
-                        assert object_target is not None
-                        objs_embedding_in_view.append(object_target.embedding)
-                    if len(objs_embedding_in_view) > 0:
-                        objs_embedding_in_view = np.stack(
-                            objs_embedding_in_view)
-                        obj_sims = np.dot(
-                            query_object_text_feats[0],
-                            objs_embedding_in_view.T)  # [1, obj_num]，query和这个view下每个obj的相似度
-                        max_obj_idx = np.argmax(
-                            obj_sims)                # 找到最大相似度的位置
-                        max_obj_sim = obj_sims[max_obj_idx]           # 最大相似度值
-                        print(f"max_obj_sim: {max_obj_sim}")
-                        max_sim_object_id = object_ids_in_view[max_obj_idx]
-                        final_object = self.find_object_by_object_id(
-                            max_sim_object_id)
-                        final_obj_pcd = final_object.pcd
-                        camera_matrix = self.dataset.get_camera_intrinsics()
-                        img, _, pose, _, _ = self.dataset[gpt_refine_best_view_img_id]
-                        if not isinstance(img, np.ndarray):
-                            img = np.array(img)
-                            img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-                            # save_path = os.path.join(self.curr_query_save_dir, save_name)
-                        avg_distance_in_gptview = visualize_pcd_on_image(
-                            final_obj_pcd, img, camera_matrix, np.linalg.inv(pose), save_path=os.path.join(
-                                self.curr_query_save_dir, f"gpt_refine_object_id_{final_object.object_id}.png"))
-                        # replace and save obect feature embedding?
-                        # final_object.embedding = final_object.embedding * 0.2 + query_object_text_feats[0] * 0.8
-                        new_objects_path = os.path.join(
-                            self.graph_path, "objects_update")
-                        if not os.path.exists(new_objects_path):
-                            os.makedirs(new_objects_path)
-                        final_object.save(
-                            os.path.join(
-                                self.graph_path,
-                                "objects_update"))
+                    if gpt_refine_best_view is not None:
+                        object_ids_in_view = gpt_refine_best_view.object_ids
+                        valid_view_objs = []
+                        for object_id in object_ids_in_view:
+                            object_target = self.find_object_by_object_id(object_id)
+                            if object_target is not None:
+                                valid_view_objs.append(object_target)
+                                objs_embedding_in_view.append(object_target.embedding)
+                        if len(objs_embedding_in_view) > 0:
+                            objs_embedding_in_view = np.stack(objs_embedding_in_view)
+                            obj_sims = np.dot(
+                                query_object_text_feats[0],
+                                objs_embedding_in_view.T)
+                            max_obj_idx = int(np.argmax(obj_sims))
+                            max_obj_sim = float(obj_sims[max_obj_idx])
+                            print(f"max_obj_sim: {max_obj_sim}")
+                            final_object = valid_view_objs[max_obj_idx]
+                            final_obj_pcd = final_object.pcd
+                            # Update top-1 target_id and target_room_id so caller gets the rescued object!
+                            for oi, obj_item in enumerate(self.objects):
+                                if obj_item.object_id == final_object.object_id:
+                                    target_id[0] = oi
+                                    break
+                            for ri, rm_item in enumerate(rooms_list):
+                                if rm_item.room_id == final_object.room_id:
+                                    target_room_id[0] = ri
+                                    break
+                            query_time_consumer["refined_object_id"] = str(final_object.object_id)
+                            query_time_consumer["refined_object_name"] = str(getattr(final_object, "name", ""))
+                            query_time_consumer["refined_object_sim"] = max_obj_sim
+                            query_time_consumer["refined_goal_view_id"] = str(gpt_refine_best_view.view_id)
+                            query_time_consumer["refined_goal_view_path"] = best_image_path
+                            camera_matrix = self.dataset.get_camera_intrinsics()
+                            img, _, pose, _, _ = self.dataset[gpt_refine_best_view_img_id]
+                            if not isinstance(img, np.ndarray):
+                                img = np.array(img)
+                                img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+                            avg_distance_in_gptview = visualize_pcd_on_image(
+                                final_obj_pcd, img, camera_matrix, np.linalg.inv(pose), save_path=os.path.join(
+                                    self.curr_query_save_dir, f"gpt_refine_object_id_{final_object.object_id}.png"))
+                            new_objects_path = os.path.join(
+                                self.graph_path, "objects_update")
+                            os.makedirs(new_objects_path, exist_ok=True)
+                            final_object.save(new_objects_path)
+                    else:
+                        print(f"[WARN] Could not map refined image {best_image_path} back to an HMSG view node.")
                 gpt_refine_time = time.time() - gpt_refine_time_start
                 query_time_consumer["gpt_refine_time"] = gpt_refine_time
 
                 # 计算距离
-                obj_pcd = deepcopy(best_object.pcd)
-                obj_center = obj_pcd.get_center()
-                camera_matrix = self.dataset.get_camera_intrinsics()
-                img, _, pose, _, _ = self.dataset[best_view_img_id]
-                obj_in_view, mean_depth_online = check_object_in_view(
-                    np.array(img).shape[1],
-                    np.array(img).shape[0],
-                    camera_matrix,
-                    np.linalg.inv(pose),
-                    np.array(obj_pcd.points),
-                    return_depth=True   # 修改 check_object_in_view，支持返回深度
-                )
-                # gpt_index = all_image_incides.index()
-                if best_image_path is not None:
-                    self.visualize_goal_images(
-                        mean_depth_online,
-                        goal_image_path_online,
-                        goal_image_path_by_clip,
-                        goal_image_path_by_gpt,
-                        save_name=f"goal_compare_room_{room_id}.png")
-                else:
-                    best_image_path = goal_image_path_by_gpt
-                    self.visualize_goal_images(
-                        mean_depth_online,
-                        goal_image_path_online,
-                        goal_image_path_by_clip,
-                        goal_image_path_by_gpt,
-                        save_name=f"goal_compare_room_{room_id}.png")
+                if best_view_img_id is not None:
+                    obj_pcd = deepcopy(best_object.pcd)
+                    camera_matrix = self.dataset.get_camera_intrinsics()
+                    img, _, pose, _, _ = self.dataset[best_view_img_id]
+                    obj_in_view, mean_depth_online = check_object_in_view(
+                        np.array(img).shape[1],
+                        np.array(img).shape[0],
+                        camera_matrix,
+                        np.linalg.inv(pose),
+                        np.array(obj_pcd.points),
+                        return_depth=True
+                    )
+                    if goal_image_path_online and goal_image_path_by_clip and goal_image_path_by_gpt:
+                        self.visualize_goal_images(
+                            mean_depth_online,
+                            goal_image_path_online,
+                            goal_image_path_by_clip,
+                            goal_image_path_by_gpt,
+                            save_name=f"goal_compare_room_{room_id}.png")
 
                 # 保存为 JSON 文件
             total_query_time_offline = total_online_query_time +\

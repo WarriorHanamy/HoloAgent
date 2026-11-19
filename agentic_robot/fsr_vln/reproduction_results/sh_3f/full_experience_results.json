@@ -1,0 +1,170 @@
+{
+  "model": "gemini-4-neon-high",
+  "room_naming_time": 29.44428324699402,
+  "rooms": [
+    {
+      "room_id": "0_0",
+      "name": "Office",
+      "n_objects": 201,
+      "n_views": 41
+    },
+    {
+      "room_id": "0_1",
+      "name": "Office",
+      "n_objects": 173,
+      "n_views": 65
+    },
+    {
+      "room_id": "0_2",
+      "name": "Office",
+      "n_objects": 0,
+      "n_views": 1
+    }
+  ],
+  "queries": [
+    {
+      "category": "Fast Hit + VLM Verified (RF)",
+      "query": "Can you find me a sofa in the office",
+      "model": "gemini-4-neon-high",
+      "room_query": "office",
+      "object_query": "sofa",
+      "fast_object_id": "0_0_200",
+      "fast_object_name": "couch",
+      "fast_object_center": [
+        -0.43573395644917207,
+        0.8920221048242906,
+        -0.9690808355808258
+      ],
+      "final_object_id": "0_0_200",
+      "final_object_name": "couch",
+      "final_room_id": "0_0",
+      "final_room_name": "Office",
+      "final_object_center": [
+        -0.43573395644917207,
+        0.8920221048242906,
+        -0.9690808355808258
+      ],
+      "was_refined": false,
+      "vlm_check_passed": true,
+      "vlm_verify_score": 0.95,
+      "online_best_view_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/sh_3f/images/1752837575812.8513.png",
+      "vlm_chosen_view_path": null,
+      "best_image_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/sh_3f/images/1752837575812.8513.png",
+      "vlm_choose_response": "",
+      "llm_parse_time": 7.300202369689941,
+      "fast_match_time": 0.022830724716186523,
+      "vlm_check_time": 5.730013370513916,
+      "vlm_rethink_time": 0.0,
+      "re_match_time": 0.0,
+      "total_time": 13.163855075836182
+    },
+    {
+      "category": "Slow Rethinking Rescue (RF)",
+      "query": "Find me a laptop in the office",
+      "model": "gemini-4-neon-high",
+      "room_query": "office",
+      "object_query": "laptop",
+      "fast_object_id": "0_0_5",
+      "fast_object_name": "shelf",
+      "fast_object_center": [
+        -4.261562080177913,
+        3.8587084345325553,
+        -0.33947568246211623
+      ],
+      "final_object_id": "0_0_5",
+      "final_object_name": "shelf",
+      "final_room_id": "0_0",
+      "final_room_name": "Office",
+      "final_object_center": [
+        -4.261562080177913,
+        3.8587084345325553,
+        -0.33947568246211623
+      ],
+      "was_refined": false,
+      "vlm_check_passed": false,
+      "vlm_verify_score": null,
+      "online_best_view_path": null,
+      "vlm_chosen_view_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/icra_sh3f/images/1752837425876.7671.png",
+      "best_image_path": null,
+      "vlm_choose_response": "<frame_id>3</frame_id>\n\nI selected **Frame 3** as the closest location to find a laptop in the office.\n\n### Detailed Description and Justification\n- **Target object (laptop):** On the right side of the recessed middle shelf of the light-wood office cabinet, there is a black open laptop (with its dark screen angled upright and a cable extending from it along the shelf toward the left).\n- **Surrounding office environment:** The cabinet is a tall, built-in wooden storage unit with upper and lower double doors, located next to an open wooden doorway on the left that has a green exit sign mounted above it. On the left side of the same shelf are a blue rectangular plaque/display and a small blue cylindrical item, while a blue plastic storage bin is visible in the bottom-right foreground on a dark carpeted office floor.\n- **Comparison with other frames:** Frames 0, 1, 2, 4, 5, 6, and 7 all depict overlapping views of a different area—a white high-top table with bar stools (holding a kettle, small figurines, and a white VR headset box), a window with blinds, a blue round stool, and a white four-compartment locker with boxes on top—none of which clearly show an accessible laptop on a workspace or counter like Frame 3 does.",
+      "llm_parse_time": 4.596549034118652,
+      "fast_match_time": 0.01769542694091797,
+      "vlm_check_time": 0.0,
+      "vlm_rethink_time": 189.71380257606506,
+      "re_match_time": 2.384185791015625e-07,
+      "total_time": 225.7669939994812
+    },
+    {
+      "category": "Spatial Target + Pantry (ST)",
+      "query": "Take me to the coffee machine in the office pantry",
+      "model": "gemini-4-neon-high",
+      "room_query": "office pantry",
+      "object_query": "coffee machine",
+      "fast_object_id": "0_1_93",
+      "fast_object_name": "coffee maker",
+      "fast_object_center": [
+        -11.061655495383523,
+        -10.495436928488992,
+        -0.5875273549195492
+      ],
+      "final_object_id": "0_1_93",
+      "final_object_name": "coffee maker",
+      "final_room_id": "0_1",
+      "final_room_name": "Office",
+      "final_object_center": [
+        -11.061655495383523,
+        -10.495436928488992,
+        -0.5875273549195492
+      ],
+      "was_refined": false,
+      "vlm_check_passed": false,
+      "vlm_verify_score": null,
+      "online_best_view_path": null,
+      "vlm_chosen_view_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/icra_sh3f/images/1752837476911.5508.png",
+      "best_image_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/icra_sh3f/images/1752837476911.5508.png",
+      "vlm_choose_response": "<frame_id>7</frame_id>\n\nFrame 7 is the closest and clearest view of the coffee machine in the office pantry.\n\n**Detailed Description of Frame 7:**\n- **Coffee Machine:** In the center-left foreground on the white L-shaped pantry countertop, there is a prominent red coffee machine with a dark brew head/spout facing left and a black drip tray and rectangular mat beneath it. A yellow package/sponge rests on the mat in front of the machine, with white cups/supplies stacked right next to it.\n- **Surrounding Pantry Area:** Immediately behind the coffee machine is a recessed stainless-steel sink with a faucet, and above it on the white back wall is a white wall-mounted soap/towel dispenser. To the right of the counter stands a large grey-and-black water dispenser with white labels on its side. Behind the counter on the right is a dark glass interior window with a white roller blind above it. On the far left, part of a blue backsplash illuminated by under-cabinet lighting, white lower and upper cabinets, and a small box on the counter are visible.\n\n**Justification Compared to Other Frames:**\n- **Frames 0, 3, 5, and 6** show seating/table areas or a desk with an orange organizer rather than the pantry coffee machine.\n- **Frames 1 and 2** show the same office pantry and red coffee machine, but from noticeably further back (showing more of the floor, cabinets, and surrounding walls, with the coffee machine appearing smaller).\n- **Frame 4** is taken from a similarly close position, but it suffers from heavy horizontal motion blur and is panned further left toward the blue backsplash nook, whereas **Frame 7** is sharper and slightly closer to the red coffee machine on the counter.",
+      "llm_parse_time": 9.544377088546753,
+      "fast_match_time": 0.01793646812438965,
+      "vlm_check_time": 0.0,
+      "vlm_rethink_time": 23.076533317565918,
+      "re_match_time": 0.0018613338470458984,
+      "total_time": 141.22946953773499
+    },
+    {
+      "category": "Implicit Intent + Slow Reasoning (RR)",
+      "query": "I am thirsty, can you find me something to drink in the office",
+      "model": "gemini-4-neon-high",
+      "room_query": "office",
+      "object_query": "something to drink",
+      "fast_object_id": "0_0_134",
+      "fast_object_name": "bottle",
+      "fast_object_center": [
+        -4.064768477241592,
+        -6.93381395906505,
+        -0.5290033773030385
+      ],
+      "final_object_id": "0_0_134",
+      "final_object_name": "bottle",
+      "final_room_id": "0_0",
+      "final_room_name": "Office",
+      "final_object_center": [
+        -4.064768477241592,
+        -6.93381395906505,
+        -0.5290033773030385
+      ],
+      "was_refined": false,
+      "vlm_check_passed": false,
+      "vlm_verify_score": null,
+      "online_best_view_path": null,
+      "vlm_chosen_view_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/icra_sh3f/images/1752837538320.2815.png",
+      "best_image_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/icra_sh3f/images/1752837538320.2815.png",
+      "vlm_choose_response": "<frame_id>0</frame_id>\n\n**Justification and Detailed Description:**\n\nFrame 0 is the best location to navigate to in response to the user's request for something to drink in the office.\n\n- **Detailed description of Frame 0:** The image is a sharp, centered, front-facing view of a white table positioned in a bright, white-walled corner alcove inside an office room (with a glimpse of an adjacent dark hallway and linear ceiling light at the far left edge). Clearly arranged on the white tabletop are five unopened beverage bottles:\n  - On the left side, **two dark soda bottles (Pepsi)** with blue caps and blue labels standing side by side.\n  - On the right side, **three clear bottled waters** with red caps and red-and-white labels grouped together.\n  - Scattered across the front and middle of the table alongside the drinks are several fruits/produce items (an orange and a yellow lemon on the left, a small orange pumpkin/pepper in the center, a yellow pear to the right of center, and a green fruit in the front right).\n\n- **Comparison with other candidate frames:**\n  - **Frames 1, 3, and 4** show the same table of water and soda bottles, but they are noticeably motion-blurred, off-center, or have some of the bottles partially cropped out of view, whereas Frame 0 provides the clearest, most complete, and directly aligned view of all the drinks.\n  - **Frame 2** shows two red-labeled Coca-Cola bottles on a round white table in front of a glass door, but the bottles are partially cut off at the bottom edge and offer less variety (no water) compared to Frame 0.\n  - **Frames 5 and 6** are blurry views focused mainly on a desk with an orange-and-black organizer cabinet and only a blurry green bottle on the side.\n  - **Frame 7** shows a long table with chairs, a kettle, and a paper cup near an exit doorway, without any clearly visible ready-to-drink bottled beverages.\n\nTherefore, **Frame 0** provides the clearest and most direct navigation target to get something to drink (both water and soda).",
+      "llm_parse_time": 13.20326542854309,
+      "fast_match_time": 0.017870426177978516,
+      "vlm_check_time": 0.0,
+      "vlm_rethink_time": 14.256420612335205,
+      "re_match_time": 0.0005388259887695312,
+      "total_time": 142.44281268119812
+    }
+  ]
+}

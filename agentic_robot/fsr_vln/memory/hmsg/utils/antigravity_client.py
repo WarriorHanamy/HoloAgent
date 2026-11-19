@@ -118,8 +118,12 @@ def resolve_llm_backend(cfg: Any = None) -> str:
     return "offline"
 
 
-def _load_image_as_base64(image_ref: str) -> Tuple[str, str]:
-    """Convert a local path, file:// URI, data URI, or HTTP URL to (mime_type, base64_str)."""
+def _load_image_as_base64(image_ref: str, max_side: int = 640) -> Tuple[str, str]:
+    """Convert a local path, file:// URI, data URI, or HTTP URL to (mime_type, base64_str).
+
+    Automatically encodes local images as compact JPEG (bounded by `max_side`) so
+    multi-image VLM calls over ACP stay fast and crisp.
+    """
     ref = image_ref.strip()
 
     if ref.startswith("data:"):
@@ -139,12 +143,26 @@ def _load_image_as_base64(image_ref: str) -> Tuple[str, str]:
     if not os.path.exists(ref):
         raise FileNotFoundError(f"Image file not found for Antigravity VLM call: {ref}")
 
-    mime, _ = mimetypes.guess_type(ref)
-    if not mime or not mime.startswith("image/"):
-        mime = "image/png"
-    with open(ref, "rb") as f:
-        raw = f.read()
-    return mime, base64.b64encode(raw).decode("ascii")
+    try:
+        from io import BytesIO
+        from PIL import Image as PILImage
+
+        with PILImage.open(ref) as im:
+            im = im.convert("RGB")
+            w, h = im.size
+            if max(w, h) > max_side:
+                scale = max_side / float(max(w, h))
+                im = im.resize((int(w * scale), int(h * scale)), PILImage.Resampling.LANCZOS)
+            buf = BytesIO()
+            im.save(buf, format="JPEG", quality=85)
+            return "image/jpeg", base64.b64encode(buf.getvalue()).decode("ascii")
+    except Exception:
+        mime, _ = mimetypes.guess_type(ref)
+        if not mime or not mime.startswith("image/"):
+            mime = "image/png"
+        with open(ref, "rb") as f:
+            raw = f.read()
+        return mime, base64.b64encode(raw).decode("ascii")
 
 
 def _messages_to_acp_prompt(messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -425,7 +443,12 @@ class AntigravityACPClient:
                         f"Antigravity ACP session/prompt failed: {prompt_res['error']}"
                     )
                 usage = prompt_res.get("result", {}).get("usage")
-                return text.strip(), usage
+                # Strip transient ACP retry banner lines (e.g. "⚠ The stream was interrupted...")
+                clean_lines = [
+                    ln for ln in text.splitlines()
+                    if not ln.strip().startswith("⚠")
+                ]
+                return "\n".join(clean_lines).strip(), usage
             finally:
                 try:
                     self._rpc("session/close", {"sessionId": session_id})
