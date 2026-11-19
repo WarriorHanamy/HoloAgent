@@ -1,0 +1,246 @@
+{
+  "scene": "ic_7f",
+  "graph_dir": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/output/G1/holoagent_mapping-g1/ic_7f/graph_20261119172159",
+  "model": "gemini-4-neon-high",
+  "room_naming_time": 0.16257691383361816,
+  "n_floors": 1,
+  "n_rooms": 8,
+  "n_views": 440,
+  "n_objects": 1280,
+  "rooms": [
+    {
+      "room_id": "0_0",
+      "name": "Pantry",
+      "n_objects": 79,
+      "n_views": 14,
+      "center": [
+        -7.473016950979165,
+        -0.7454219646025669,
+        2.327315968152062
+      ]
+    },
+    {
+      "room_id": "0_1",
+      "name": "Hallway",
+      "n_objects": 47,
+      "n_views": 55,
+      "center": [
+        2.228310287716133,
+        -0.855564371951574,
+        -8.34345115969299
+      ]
+    },
+    {
+      "room_id": "0_2",
+      "name": "Office",
+      "n_objects": 176,
+      "n_views": 41,
+      "center": [
+        -5.844692719783317,
+        -0.6962586255030121,
+        -5.828046345206573
+      ]
+    },
+    {
+      "room_id": "0_3",
+      "name": "Office",
+      "n_objects": 272,
+      "n_views": 79,
+      "center": [
+        8.605809802700223,
+        -0.5738834052498067,
+        -15.47307153750685
+      ]
+    },
+    {
+      "room_id": "0_4",
+      "name": "Pantry",
+      "n_objects": 222,
+      "n_views": 53,
+      "center": [
+        8.941454699472077,
+        -0.4060493580348148,
+        -19.031008605388433
+      ]
+    },
+    {
+      "room_id": "0_5",
+      "name": "Elevator Lobby",
+      "n_objects": 122,
+      "n_views": 81,
+      "center": [
+        -1.9414072922355963,
+        -0.5187278146416969,
+        -20.20478868165489
+      ]
+    },
+    {
+      "room_id": "0_6",
+      "name": "Pantry",
+      "n_objects": 114,
+      "n_views": 38,
+      "center": [
+        2.68628095188004,
+        -0.2783652227443826,
+        -25.842303229953295
+      ]
+    },
+    {
+      "room_id": "0_7",
+      "name": "Pantry",
+      "n_objects": 248,
+      "n_views": 79,
+      "center": [
+        3.3366336635102973,
+        -0.19515047366625043,
+        -34.80751059969119
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "category": "Long-Range Reuse (Start -> Cafeteria)",
+      "query": "Take me to the microwave in the cafeteria",
+      "model": "gemini-4-neon-high",
+      "room_query": "cafeteria",
+      "object_query": "microwave",
+      "fast_object_id": "0_4_59",
+      "fast_object_name": "microwave",
+      "fast_object_center": [
+        8.980382364446466,
+        -0.17198053842241115,
+        -19.744075567072088
+      ],
+      "final_object_id": "0_4_59",
+      "final_object_name": "microwave",
+      "final_room_id": "0_4",
+      "final_room_name": "Pantry",
+      "final_object_center": [
+        8.980382364446466,
+        -0.17198053842241115,
+        -19.744075567072088
+      ],
+      "was_refined": false,
+      "vlm_check_passed": true,
+      "vlm_verify_score": 1.0,
+      "online_best_view_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/ic_7f/images/1757051164499.5796.png",
+      "vlm_chosen_view_path": null,
+      "best_image_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/ic_7f/images/1757051164499.5796.png",
+      "vlm_choose_response": "",
+      "llm_parse_time": 7.618167400360107,
+      "fast_match_time": 0.03377270698547363,
+      "vlm_check_time": 5.064579010009766,
+      "vlm_rethink_time": 0.0,
+      "re_match_time": 0.0,
+      "total_time": 12.728151798248291
+    },
+    {
+      "category": "Cross-Building Reuse (Cafeteria -> West Pantry)",
+      "query": "Find me a coffee machine in the pantry",
+      "model": "gemini-4-neon-high",
+      "room_query": "pantry",
+      "object_query": "coffee machine",
+      "fast_object_id": "0_6_53",
+      "fast_object_name": "coffee maker",
+      "fast_object_center": [
+        1.8700312406588824,
+        0.38730958562630874,
+        -31.61255401220077
+      ],
+      "final_object_id": "0_6_53",
+      "final_object_name": "coffee maker",
+      "final_room_id": "0_6",
+      "final_room_name": "Pantry",
+      "final_object_center": [
+        1.8700312406588824,
+        0.38730958562630874,
+        -31.61255401220077
+      ],
+      "was_refined": false,
+      "vlm_check_passed": true,
+      "vlm_verify_score": 0.95,
+      "online_best_view_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/ic_7f/images/1757051064209.8489.png",
+      "vlm_chosen_view_path": null,
+      "best_image_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/ic_7f/images/1757051064209.8489.png",
+      "vlm_choose_response": "",
+      "llm_parse_time": 4.880257844924927,
+      "fast_match_time": 0.028793811798095703,
+      "vlm_check_time": 13.123270034790039,
+      "vlm_rethink_time": 0.0,
+      "re_match_time": 0.0,
+      "total_time": 18.040977716445923
+    },
+    {
+      "category": "Closed-Door Detour Avoidance (Lobby -> West Space)",
+      "query": "Find me a white table with dark legs in the hallway",
+      "model": "gemini-4-neon-high",
+      "room_query": "hallway",
+      "object_query": "white table with dark legs",
+      "fast_object_id": "0_1_29",
+      "fast_object_name": "column",
+      "fast_object_center": [
+        1.022772132808512,
+        -0.3013533638282256,
+        -0.35163131627169525
+      ],
+      "final_object_id": "0_1_29",
+      "final_object_name": "column",
+      "final_room_id": "0_1",
+      "final_room_name": "Hallway",
+      "final_object_center": [
+        1.022772132808512,
+        -0.3013533638282256,
+        -0.35163131627169525
+      ],
+      "was_refined": false,
+      "vlm_check_passed": false,
+      "vlm_verify_score": 0.0,
+      "online_best_view_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/ic_7f/images/1757051278401.6877.png",
+      "vlm_chosen_view_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/icra_ic7f/images/1757050976097.4993.png",
+      "best_image_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/ic_7f/images/1757051278401.6877.png",
+      "vlm_choose_response": "<frame_id>4</frame_id>\n\nFrame 4 is the closest match to the instruction to find a white table with dark legs in the hallway.\n\n**Detailed Description and Justification:**\n- **Target Object (White Table with Dark Legs):** Frame 4 features two round white tables (a larger one on the right and a smaller one on the left) situated in an open seating area. Underneath and around the white tabletops are dark/shadowed supports and clusters of dark black legs from the surrounding white and dark teal chairs, closely matching the visual appearance of white tables with dark legs.\n- **Location (Hallway):** Unlike the other frames, Frame 4 depicts an open office corridor/hallway setting. On the left side past the white structural column, a long office walkway with linear ceiling lights, dark gray carpeted flooring, and workspace partitions topped with plants is visible. The seating alcove with the white tables opens directly onto this hallway, with two framed posters (\"SPACE\" and \"FUTURE\") on the back wall, a whiteboard mounted on the right wall, and circular ring light fixtures overhead.\n- **Comparison with Other Candidates:**\n  - **Frame 0** shows a built-in solid white cabinet/counter beside a windowed walkway, with no table with dark legs.\n  - **Frame 1** shows a break area beside glass-door vending machines and windows with a round white table on a bright silver pedestal base.\n  - **Frames 2, 3, and 6** mostly show a blank white wall with only the tiny corner of a white shelf/desk visible on the lower right.\n  - **Frame 5** shows a wood-floored café/lounge area with a dark blue accent wall, built-in banquette seating, a striped awning booth, and white tables with clearly visible silver metallic pedestal bases.\n  - **Frame 7** shows a pantry/kitchen area with refrigerators and a solid white high bar counter with wooden-legged bar stools.",
+      "llm_parse_time": 4.680218935012817,
+      "fast_match_time": 0.027052640914916992,
+      "vlm_check_time": 7.33246922492981,
+      "vlm_rethink_time": 59.86854958534241,
+      "re_match_time": 2.384185791015625e-07,
+      "total_time": 113.70883822441101
+    },
+    {
+      "category": "Implicit Reasoning + Reuse (Thirsty -> Water)",
+      "query": "I am thirsty, can you find me a water dispenser in the office",
+      "model": "gemini-4-neon-high",
+      "room_query": "office",
+      "object_query": "water dispenser",
+      "fast_object_id": "0_3_225",
+      "fast_object_name": "water cooler",
+      "fast_object_center": [
+        4.978228569030762,
+        -0.033880021630062,
+        -16.802957610478476
+      ],
+      "final_object_id": "0_3_225",
+      "final_object_name": "water cooler",
+      "final_room_id": "0_3",
+      "final_room_name": "Office",
+      "final_object_center": [
+        4.978228569030762,
+        -0.033880021630062,
+        -16.802957610478476
+      ],
+      "was_refined": false,
+      "vlm_check_passed": true,
+      "vlm_verify_score": 1.0,
+      "online_best_view_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/ic_7f/images/1757051233961.8015.png",
+      "vlm_chosen_view_path": null,
+      "best_image_path": "/home/rec/reading/fsr_vln_data/VLN/instance_tracking/data/input/datasets/G1/decoded_scans/ic_7f/images/1757051233961.8015.png",
+      "vlm_choose_response": "",
+      "llm_parse_time": 5.336380958557129,
+      "fast_match_time": 0.031058073043823242,
+      "vlm_check_time": 5.240902423858643,
+      "vlm_rethink_time": 0.0,
+      "re_match_time": 0.0,
+      "total_time": 10.636375427246094
+    }
+  ]
+}

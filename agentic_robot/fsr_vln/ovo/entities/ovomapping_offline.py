@@ -323,26 +323,40 @@ class OVOSemMap():
         out_path = str(self.output_path) + "/" + self.scene + "_rgb.ply"
         o3d.io.write_point_cloud(out_path, pcd_rgb)
         if self.save_obj_clouds:
-            ids_input = list(self.ovo.objects.keys())
-            ids_input = np.array(ids_input, dtype=np.int32)
-            obj_masks, ids = vis_utils.get_obj_ids_and_masks(
-                pcd_obj_ids, ids_input)
-            obj_colors_for_instances = vis_utils.get_pcd_colors(
-                ids, vis_utils.get_cmap())
-            obb_obj_list = vis_utils.get_obj_and_obb(
-                obj_masks, pcd_pred, obj_colors_for_instances)
+            # Memory-safe O(N) grouping by object ID (avoids O(N_points * N_objects) mask matrix OOM)
+            flat_obj_ids = pcd_obj_ids.reshape(-1)
+            ids_input = np.array(sorted(self.ovo.objects.keys()), dtype=np.int32)
+            cmap = vis_utils.get_cmap()
             instance_dir = Path(str(self.output_path) + "/instance/")
             instance_dir.mkdir(exist_ok=True, parents=True)
+
+            valid_mask = np.isin(flat_obj_ids, ids_input)
+            valid_pts = pcd_pred[valid_mask]
+            valid_ids = flat_obj_ids[valid_mask]
+            order = np.argsort(valid_ids, kind="mergesort")
+            sorted_ids = valid_ids[order]
+            sorted_pts = valid_pts[order]
+            unique_ids, starts, counts = np.unique(
+                sorted_ids, return_index=True, return_counts=True
+            )
+            merged_colors = np.zeros((len(sorted_pts), 3), dtype=np.float32)
+            for idx_u, (oid, st, cnt) in enumerate(zip(unique_ids, starts, counts)):
+                col = cmap[int(oid) % len(cmap)]
+                merged_colors[st:st + cnt] = col
+                obj_pts = sorted_pts[st:st + cnt]
+                obj_pcd = o3d.geometry.PointCloud()
+                obj_pcd.points = o3d.utility.Vector3dVector(obj_pts)
+                obj_pcd.colors = o3d.utility.Vector3dVector(
+                    np.broadcast_to(col, (cnt, 3)).astype(np.float64)
+                )
+                out_path = str(instance_dir / (self.scene + f"_obj_{int(oid)}_obb.ply"))
+                o3d.io.write_point_cloud(out_path, obj_pcd)
             merged_cloud = o3d.geometry.PointCloud()
-            for i, obj_pcd in enumerate(obb_obj_list):
-                merged_cloud += obj_pcd.to_legacy()
-                out_path = str(
-                    instance_dir / (self.scene + f"_obj_{ids[i]}_obb.ply"))
-                o3d.io.write_point_cloud(out_path, obj_pcd.to_legacy())
-                print(f"Object {ids[i]} point cloud saved to {out_path}")
+            merged_cloud.points = o3d.utility.Vector3dVector(sorted_pts)
+            merged_cloud.colors = o3d.utility.Vector3dVector(merged_colors.astype(np.float64))
             out_path = str(self.output_path) + "/" + self.scene + "_obj.ply"
             o3d.io.write_point_cloud(out_path, merged_cloud)
-            print(f"Point cloud saved to {out_path}")
+            print(f"Point cloud saved to {out_path} ({len(unique_ids)} objects)")
 
         # Save per-keyframe semantic point clouds as PLY (xyz + rgb by obj_id +
         # obj_id; ref: iggt_slam update_map kfs/pcd_idxs)

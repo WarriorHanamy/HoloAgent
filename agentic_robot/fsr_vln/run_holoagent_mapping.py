@@ -129,9 +129,9 @@ def run_scene(
         f"configs/{dataset}/{dataset.lower()}.yaml")
     io_utils.update_recursive(config, config_dataset)
 
-    if os.path.exists(f"configs/{dataset}/{dataset.lower()}.yaml"):
+    if os.path.exists(f"configs/{dataset}/{scene}.yaml"):
         config_scene = io_utils.load_config(
-            f"configs/{dataset}/{dataset.lower()}.yaml")
+            f"configs/{dataset}/{scene}.yaml")
         io_utils.update_recursive(config, config_scene)
 
     if "data" not in config:

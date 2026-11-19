@@ -7,6 +7,10 @@ models:
   clip:
     type: SigLIP-384
     checkpoint: hf-hub:timm/ViT-SO400M-14-SigLIP-384
+  llm:
+    backend: antigravity # antigravity | openai | azure | offline
+    effort: high # high -> gemini-4-neon-high, extra/xhigh -> gemini-4-neon-xhigh
+    model: null # optional explicit model ID override (e.g. gemini-4-neon-high / gemini-4-neon-xhigh)
   sam:
     type: vit_h
     checkpoint: ""

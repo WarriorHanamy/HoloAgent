@@ -208,10 +208,23 @@ FSR-VLN's LLM instruction parsing and VLM slow-reasoning verification natively r
 
 The visualization stage reads the generated graph files from the mapping output directory and renders the scene graph for inspection.
 
-## 🎬 Reproduction Results (`sh_3f`, Single RTX 4070 Ti SUPER)
+## 🎬 Reproduction Results (`ic_7f` & `sh_3f`, Single RTX 4070 Ti SUPER)
 
-Zero-shot offline reproduction on Unitree-G1 `icra_sh3f` (844 RGB-D frames) using `uv` (Python 3.10, PyTorch 2.5.0+cu121) and native Antigravity ACP (`gemini-4-neon-high` / `gemini-4-neon-xhigh`):
+Zero-shot offline reproduction on Unitree-G1 **`icra_ic7f`** (3520 RGB-D frames, 20m × 39m ring building, 197.2m exploration, 8 rooms / 440 views / 1280 objects) and **`icra_sh3f`** (844 frames) using `uv` (Python 3.10, PyTorch 2.5.0+cu121) and native Antigravity ACP (`gemini-4-neon-high` / `gemini-4-neon-xhigh`):
 
+### 1. Multi-Room Ring Building (`ic_7f`) — Blind Exploration Detours vs. Post-Exploration Reuse & Open/Closed Doors
+- **Full 60s Showcase Video (From-Zero 197.2m Exploration → 8-Room HMSG & Open/Closed Doors → 4 Reuse Missions incl. Slow VLM Rescue & Dynamic Door Closure Rerouting)**: [`reproduction_results/ic_7f/FSR-VLN_ic7f_reuse_experience.mp4`](reproduction_results/ic_7f/FSR-VLN_ic7f_reuse_experience.mp4)
+- **Native Antigravity `gemini-4-neon-high` Multi-Room Trace**: [`ic7f_full_experience_results.json`](reproduction_results/ic_7f/ic7f_full_experience_results.json)
+
+| Phase 1: From-Zero Blind Exploration (197.2m, Dead-Ends & Doors) | Phase 2: 8-Room HMSG + Open (Green) vs. Closed (Red) Doors |
+|:---:|:---:|
+| ![](reproduction_results/ic_7f/previews/00_ic7f_explore_f355.png) | ![](reproduction_results/ic_7f/previews/01_ic7f_hmsg_doors.png) |
+| **Reuse 1: 109.9m Detour → 24.4m Direct (4.5× Shorter!)** | **Reuse 2: Closed West Glass Door Avoidance + Slow VLM Rescue** |
+| ![](reproduction_results/ic_7f/previews/02_ic7f_mission1_arrived.png) | ![](reproduction_results/ic_7f/previews/03_ic7f_mission2_arrived.png) |
+| **Reuse 4: Dynamic SE Door Closure → Open West Ring Auto-Reroute** | **Exploration vs. Post-Exploration Reuse Summary** |
+| ![](reproduction_results/ic_7f/previews/05_ic7f_mission4_arrived.png) | ![](reproduction_results/ic_7f/previews/06_ic7f_summary.png) |
+
+### 2. Office Scene (`sh_3f`) — Closed-Loop Demo
 - **Full Closed-Loop Experience Video (From-Zero 3D Mapping → OVO/HMSG → Slow VLM Rescue → 51.2m Multi-Goal 3D Navigation, 56s)**: [`reproduction_results/sh_3f/FSR-VLN_sh3f_full_experience.mp4`](reproduction_results/sh_3f/FSR-VLN_sh3f_full_experience.mp4)
 - **Scene & Query Demo Video (1280×720 @ 30fps H.264)**: [`reproduction_results/sh_3f/FSR-VLN_sh3f_demo.mp4`](reproduction_results/sh_3f/FSR-VLN_sh3f_demo.mp4)
 - **Logs & JSON Outputs**:

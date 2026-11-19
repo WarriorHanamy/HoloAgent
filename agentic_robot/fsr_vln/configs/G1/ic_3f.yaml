@@ -1,0 +1,10 @@
+# Scene-specific D455 wide-angle camera intrinsics for Unitree-G1 ic_3f
+cam:
+  H: 480
+  W: 640
+  fx: 385.4841613769531
+  fy: 384.9510498046875
+  cx: 320.58416748046875
+  cy: 240.083740234375
+  depth_scale: 1000.
+  depth_th: 10.

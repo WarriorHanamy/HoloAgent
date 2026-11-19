@@ -154,6 +154,22 @@ def build_hmsg_from_ovo_output(
             f"Shape mismatch: xyz={xyz.shape}, obj_ids={obj_ids.shape}")
 
     feat_map = _extract_instance_feat_map(ovo_map_params)
+    # Free checkpoint dict early to keep peak RAM low on large scenes
+    del ckpt, map_params, ovo_map_params
+    import gc as _gc
+    _gc.collect()
+
+    # Align Z-up G1/Horizon OVO point clouds to HMSG's Y-up convention
+    # (matches HorizonDataset.__getitem__: T_switch_axis = [[1,0,0],[0,0,1],[0,-1,0]])
+    if dataset_name.lower() in ("g1", "horizon"):
+        y_span = float(np.percentile(xyz[:, 1], 99) - np.percentile(xyz[:, 1], 1))
+        z_span = float(np.percentile(xyz[:, 2], 99) - np.percentile(xyz[:, 2], 1))
+        if z_span < y_span:
+            print(
+                f"[HMSG] Applying T_switch_axis (Z-up -> Y-up) for {dataset_name}/{scene_name} "
+                f"(y_span={y_span:.2f}m, z_span={z_span:.2f}m)"
+            )
+            xyz = np.stack([xyz[:, 0], xyz[:, 2], -xyz[:, 1]], axis=1).astype(np.float32)
 
     inferred_dim = None
     for feat in feat_map.values():

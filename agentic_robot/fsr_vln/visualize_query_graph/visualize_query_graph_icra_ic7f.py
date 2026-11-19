@@ -319,6 +319,11 @@ def main(params: DictConfig):
     sum_Re_Matching = 0.0
     sum_LLM_parse = 0.0
 
+    max_queries = params.main.get("max_queries", None)
+    if max_queries is not None:
+        final_instruction_telepalte = final_instruction_telepalte[:int(max_queries)]
+    headless = os.getenv("FSR_VLN_HEADLESS", "0") == "1"
+
     for query_instruction in final_instruction_telepalte:
         # while True:
         # query_instruction = input("Enter query: ")
@@ -376,11 +381,12 @@ def main(params: DictConfig):
             pcd_render_save_path = os.path.join(
                 hmsg.curr_query_save_dir, f"scene_{i}.png")
             o3d.io.write_point_cloud(pcd_save_path, combined_pcd)
-            visualize_and_save(
-                room_pcd,
-                obj_pcd,
-                end_sphere,
-                save_path=pcd_render_save_path)
+            if not headless:
+                visualize_and_save(
+                    room_pcd,
+                    obj_pcd,
+                    end_sphere,
+                    save_path=pcd_render_save_path)
             print(f"Saved {pcd_save_path}")
         all_results.append(query_result)
 
